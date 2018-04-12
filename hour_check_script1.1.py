@@ -8,12 +8,26 @@ def main():
 
 
     checkForBlanks(fileName)
+    nameMatchCheck(fileName)
     global errors
     #print(str(errors))
     if errors == 1:
         sys.exit(1)
 
 
+def nameMatchCheck(fileName):
+    global fileUserName
+    with open(fileName, 'r') as csvFile:
+        reader = csv.reader(csvFile, delimiter='|')
+        rowNum = 1
+        for row in reader:
+            #for entry in row:
+            if str(row[0]) != str(fileUserName):
+                print("Name field for row #" + str(rowNum) + " does not match, it says: " + str(row[0]))
+                global errors
+                errors = 1
+            rowNum += 1
+    csvFile.close()
 
 def checkForBlanks(fileName):
     global hoursEntryFormat
