@@ -29,7 +29,7 @@ def checkHourIncrement(fileName):
             errors = 1
     rowNum += 1
 
-def checkForOverlap(fileName):
+def checkForOverlap(fileName): ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
     reader = csv.reader(fileName, delimiter='|')
     rowNum = 1
     for row in reader:
