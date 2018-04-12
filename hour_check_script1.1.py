@@ -6,7 +6,7 @@ import sys
 def main():
 
 
-
+    checkFileYear(fileName)
     checkForBlanks(fileName)
     nameMatchCheck(fileName)
     global errors
@@ -23,7 +23,7 @@ def nameMatchCheck(fileName):
         for row in reader:
             #for entry in row:
             if str(row[0]) != str(fileUserName):
-                print("Name field for row #" + str(rowNum) + " does not match, it says: " + str(row[0]))
+                print("Name field for row #" + str(rowNum) + " does not match file name, it says: " + str(row[0]))
                 global errors
                 errors = 1
             rowNum += 1
@@ -43,6 +43,22 @@ def checkForBlanks(fileName):
                     errors = 1
             rowNum += 1
     csvFile.close()
+
+def checkFileYear(fileName):
+    with open(fileName, 'r') as csvFile:
+        reader = csv.reader(csvFile, delimiter='|')
+        rowNum = 1
+        for row in reader:
+            #print(row[1])
+            entry = str(row[1]).split('-')
+            #print(entry)
+            global fileYear
+            if str(entry[0]) != str(fileYear):
+                print("Row #" + str(rowNum) + ", the year in the \"Date In\" field does not match file name, it says: " + str(entry[0]))
+                global errors
+                errors = 1
+            rowNum += 1
+
 
 fileName = str(sys.argv[1])
     #print(fileName)
