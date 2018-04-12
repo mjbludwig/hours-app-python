@@ -64,7 +64,8 @@ fileName = str(sys.argv[1])
     #print(fileName)
 
 errors = 0
-fileFields = fileName.split('-')
+actualFileName = fileName.split('/')
+fileFields = str(actualFileName[-1]).split('-')
 fileYear = fileFields[0]
 fileMonth = fileFields[1]
 fileDay = fileFields[2]
