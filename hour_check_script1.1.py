@@ -6,7 +6,7 @@ import sys
 def main():
 
     checkHourIncrement(fileName)
-    checkFileYear(fileName)
+    checkFileDate(fileName)
     checkForBlanks(fileName)
     nameMatchCheck(fileName)
     global errors
@@ -60,18 +60,20 @@ def checkForBlanks(fileName):
             rowNum += 1
     csvFile.close()
 
-def checkFileYear(fileName):
+def checkFileDate(fileName):
     with open(fileName, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter='|')
         rowNum = 1
         for row in reader:
             #print(row[1])
-            entry = str(row[1]).split('-')
             #print(entry)
-            global fileYear
-            if str(entry[0]) != str(fileYear):
-                print("Row #" + str(rowNum) + ", the year in the \"Date In\" field does not match file name, it says: " + str(entry[0]))
-                global errors
+            global fileDate
+            global errors
+            if str(row[1]) != str(fileDate):
+                print("Row #" + str(rowNum) + ", the date in the \"Date In\" field does not match file name, it says: " + str(row[1]))
+                errors = 1
+            elif str(row[3]) != str(fileDate):
+                print("Row #" + str(rowNum) + ", the date in the \"Date Out\" field does not match file name, it says: " + str(row[3]))
                 errors = 1
             rowNum += 1
     csvFile.close()
@@ -86,6 +88,8 @@ fileFields = str(actualFileName[-1]).split('-')
 fileYear = fileFields[0]
 fileMonth = fileFields[1]
 fileDay = fileFields[2]
+fileDate = '-'.join(fileFields[0:-1])
+#print(fileDate)
 fileUserName = fileFields[3]
 hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Position", "Emergency",\
                         'Billable', 'Comment']
