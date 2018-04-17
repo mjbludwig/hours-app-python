@@ -5,11 +5,14 @@ import sys
 
 def main():
     csvFile = open(fileName, 'r')
-    checkForOverlap(csvFile)
-    checkHourIncrement(csvFile)
-    checkFileDate(csvFile)
-    checkForBlanks(csvFile)
-    nameMatchCheck(csvFile)
+    reader = csv.reader(csvFile, delimiter='|')
+    data = list(reader)
+    checkForBlanks(data)
+    checkForOverlapSingleRow(data)
+    checkHourIncrement(data)
+    checkFileDate(data)
+    nameMatchCheck(data)
+    checkIllegalNums(data)
     global errors
     if errors == 1:
         sys.exit(1)
@@ -18,8 +21,9 @@ def main():
     csvFile.close()
 
 
-def checkHourIncrement(fileName):
-    reader = csv.reader(fileName, delimiter='|')
+
+
+def checkHourIncrement(reader):
     rowNum = 1
     for row in reader:
         workTime = str(row[5]).split(':')
@@ -29,8 +33,8 @@ def checkHourIncrement(fileName):
             errors = 1
     rowNum += 1
 
-def checkForOverlap(fileName): ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
-    reader = csv.reader(fileName, delimiter='|')
+
+def checkForOverlapSingleRow(reader): ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
     rowNum = 1
     for row in reader:
         timeIn = str(row[2]).split(':')
@@ -39,15 +43,15 @@ def checkForOverlap(fileName): ####This function needs to be mathmatically rewri
         minCheck = int(timeOut[1]) - int(timeIn[1])
         #print(hourCheck)
         #print(minCheck)
-        if hourCheck < 0 or (hourCheck and minCheck < 0):
-            print("in row #" + str(rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
+        if hourCheck and minCheck < 0 or hourCheck < 0:
+            print("in entry #" + str(rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
             global errors
             errors = 1
         rowNum += 1
 
-def nameMatchCheck(fileName):
+
+def nameMatchCheck(reader):
     global fileUserName
-    reader = csv.reader(fileName, delimiter='|')
     rowNum = 1
     for row in reader:
         if str(row[0]) != str(fileUserName):
@@ -56,9 +60,8 @@ def nameMatchCheck(fileName):
             errors = 1
         rowNum += 1
 
-def checkForBlanks(fileName):
+def checkForBlanks(reader):
     global hoursEntryFormat
-    reader = csv.reader(fileName, delimiter='|')
     rowNum = 1
     for row in reader:
         for entry in range(len(row)):
@@ -68,8 +71,15 @@ def checkForBlanks(fileName):
                 errors = 1
         rowNum += 1
 
-def checkFileDate(fileName):
-        reader = csv.reader(fileName, delimiter='|')
+def checkIllegalNums(reader):
+    rowNum = 1
+    for row in reader:
+        hourIn = str(row[2]).split(':')[0]
+        hourOut = str(row[4]).split(':')[0]
+        print(hourIn)
+        print(hourOut)
+
+def checkFileDate(reader):
         rowNum = 1
         for row in reader:
             global fileDate
