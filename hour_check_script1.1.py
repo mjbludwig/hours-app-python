@@ -39,8 +39,8 @@ def checkForOverlapSingleRow(reader): ####This function needs to be mathmaticall
     for row in reader:
         timeIn = str(row[2]).split(':')
         timeOut = str(row[4]).split(':')
-        hourCheck = int(timeOut[0]) - int(timeIn[0])
-        minCheck = int(timeOut[1]) - int(timeIn[1])
+        hourCheck = float(timeOut[0]) - float(timeIn[0])
+        minCheck = float(timeOut[1]) - float(timeIn[1])
         #print(hourCheck)
         #print(minCheck)
         if hourCheck and minCheck < 0 or hourCheck < 0:
@@ -73,11 +73,51 @@ def checkForBlanks(reader):
 
 def checkIllegalNums(reader):
     rowNum = 1
+    global errors
     for row in reader:
         hourIn = str(row[2]).split(':')[0]
         hourOut = str(row[4]).split(':')[0]
-        print(hourIn)
-        print(hourOut)
+        minIn = str(row[2]).split(':')[1]
+        minOut = str(row[4]).split(':')[1]
+        if float(hourIn) % 1 > 0:
+            print("In row #" + str(rowNum) + " the hour in time is a decimal. It reads: " + str(hourIn))
+            errors = 1
+        if float(hourOut) % 1 > 0:
+            print("In row #" + str(rowNum) + " the hour out time is a decimal. It reads: " + str(hourOut))
+            errors = 1
+        if float(minIn) % 1 > 0:
+            print("In row #" + str(rowNum) + " the minutes in the time in field are a decimal. It reads: " + str(minIn))
+            errors = 1
+        if float(minOut) % 1 > 0:
+            print("In row #" + str(rowNum) + " the minutes in the time out field are a decimal. It reads: " + str(minOut))
+            errors = 1
+        if float(hourIn) > 24:
+            print("In row #" + str(rowNum) + " the hour in time is greater than 24. It reads: " + str(hourIn))
+            errors = 1
+        elif float(hourIn) < 0:
+            print("In row #" + str(rowNum) + " the hour in time is a negative. It reads: " + str(hourIn))
+            errors = 1
+        if float(hourOut) > 24:
+            print("In row #" + str(rowNum) + " the hour out time is greater than 24. It reads: " + str(hourOut))
+            errors = 1
+        elif float(hourOut) < 0:
+            print("In row #" + str(rowNum) + " the hour out time is a negative. It reads: " + str(hourOut))
+            errors = 1
+        if float(minIn) > 59:
+            print("In row #" + str(rowNum) + " the minutes in the time in field are over 59. It reads: " + str(minIn))
+            errors = 1
+        elif float(minIn) < 0:
+            print("In row #" + str(rowNum) + " the minutes in the time in field are negative. It reads: " + str(minIn))
+            errors = 1
+        if float(minOut) > 59:
+            print("In row #" + str(rowNum) + " the minutes in the time out field are over 59. It reads: " + str(minOut))
+            errors = 1
+        elif float(minOut) < 0:
+            print("In row #" + str(rowNum) + " the minutes in the time out field are negative It reads: " + str(minOut))
+            errors = 1
+        rowNum += 1
+        #print(hourIn)
+        #print(hourOut)
 
 def checkFileDate(reader):
         rowNum = 1
