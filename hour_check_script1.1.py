@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import csv
 import sys
 import datetime
@@ -85,10 +86,11 @@ def checkIllegalDates(reader):
         print("The year in the file name is a decimal. ")
         errors = 1
     else:
-        if fileYear != datetime.datetime.now().year:
-            userInput = input("This file is from a different year than it is currently, it reads: " + str(fileYear) + ". Continue? (Y/N) ")
-            while userInput != "Y" or "N":
-                userInput = input("Enter Y or N ")
+        if str(fileYear) != str(datetime.datetime.now().year):
+            print(datetime.datetime.now().year)
+            userInput = str(input("This file is from a different year than it is currently, it reads: " + str(fileYear) + ". Continue? (Y/N) "))
+            while userInput != "Y" and userInput != "N":
+                userInput = str(input("Enter Y or N "))
             if userInput == "N":
                 print("Quitting...")
                 exit()
@@ -99,15 +101,16 @@ def checkIllegalDates(reader):
     for row in reader:
         dateIn = str(row[1]).split('-')
         dateOut = str(row[3]).split('-')
-        if dateIn[1] > 12 or dateIn[1] < 1:
+
+        if float(dateIn[1]) > 12 or float(dateIn[1]) < 1:
             print("In row #" + str(rowNum) + "The date in month is out of range. It reads: " + str(dateIn[1]))
             errors = 1
-        if dateIn[2] > 31 or dateIn[2] < 1:
+        if float(dateIn[2]) > 31 or float(dateIn[2]) < 1:
             print("In row #" + str(rowNum) + "The date in day is out of range. It reads: " + str(dateIn[2]))
-        if dateOut[1] > 12 or dateOut[1] < 1:
+        if float(dateOut[1]) > 12 or float(dateOut[1]) < 1:
             print("In row #" + str(rowNum) + "The date out month is out of range. It reads: " + str(dateOut[1]))
             errors = 1
-        if dateOut[2] > 31 or dateOut[2] < 1:
+        if float(dateOut[2]) > 31 or float(dateOut[2]) < 1:
             print("In row #" + str(rowNum) + "The date out day is out of range. It reads: " + str(dateOut[2]))
         rowNum += 1
 
