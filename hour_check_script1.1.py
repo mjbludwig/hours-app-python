@@ -1,6 +1,6 @@
 import csv
 import sys
-
+import datetime
 
 
 def main():
@@ -13,6 +13,7 @@ def main():
     checkFileDate(data)
     nameMatchCheck(data)
     checkIllegalNums(data)
+    checkIllegalDates(data)
     global errors
     if errors == 1:
         sys.exit(1)
@@ -70,6 +71,46 @@ def checkForBlanks(reader):
                 global errors
                 errors = 1
         rowNum += 1
+
+def checkIllegalDates(reader):
+    global errors
+    global fileDay
+    global fileMonth
+    global fileYear
+
+    if str(fileYear).isdecimal() is False:
+        print("The year in the file name is not correct. ")
+        errors = 1
+    elif float(fileYear) % 1 > 0:
+        print("The year in the file name is a decimal. ")
+        errors = 1
+    else:
+        if fileYear != datetime.datetime.now().year:
+            userInput = input("This file is from a different year than it is currently, it reads: " + str(fileYear) + ". Continue? (Y/N) ")
+            while userInput != "Y" or "N":
+                userInput = input("Enter Y or N ")
+            if userInput == "N":
+                print("Quitting...")
+                exit()
+            elif userInput == "Y":
+                yearToBaseFrom = fileYear
+
+    rowNum = 1
+    for row in reader:
+        dateIn = str(row[1]).split('-')
+        dateOut = str(row[3]).split('-')
+        if dateIn[1] > 12 or dateIn[1] < 1:
+            print("In row #" + str(rowNum) + "The date in month is out of range. It reads: " + str(dateIn[1]))
+            errors = 1
+        if dateIn[2] > 31 or dateIn[2] < 1:
+            print("In row #" + str(rowNum) + "The date in day is out of range. It reads: " + str(dateIn[2]))
+        if dateOut[1] > 12 or dateOut[1] < 1:
+            print("In row #" + str(rowNum) + "The date out month is out of range. It reads: " + str(dateOut[1]))
+            errors = 1
+        if dateOut[2] > 31 or dateOut[2] < 1:
+            print("In row #" + str(rowNum) + "The date out day is out of range. It reads: " + str(dateOut[2]))
+        rowNum += 1
+
 
 def checkIllegalNums(reader):
     rowNum = 1
