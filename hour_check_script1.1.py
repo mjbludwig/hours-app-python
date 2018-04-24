@@ -23,7 +23,7 @@ def main():
     checkIllegalNums(data)
     checkIllegalDates(data)
     if errors == 1:
-        print("\n\033[1;31;41m**** There were errors in file #" + str(fileNumber) + ":\033[0m\n")
+        print("\n\033[1;31;41m**** There were errors in file:\033[0m" + " \033[0;30;43m" + str(fileName) + "\033[0m\n")
         for errs in errorMessages:
             print("       => " + errs)
     csvFile.close()
