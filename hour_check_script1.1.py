@@ -9,8 +9,17 @@ def main():
         csvFile = open(fileName, 'r')
     except FileNotFoundError:
         print("\n*********   The file \"%s\" does not exist.   **********\n" % csvFile)
-        return 
-
+        return
+    try:
+        clientListFile = open('/projects/clients/bin/projects-show-all', 'r')
+    except FileNotFoundError:
+        print("\n\033[1;31;41m*** Could not find \"projects-show-all\" file\033[0m\n")
+        quit()
+    clientReader = csv.reader(clientListFile)
+    clientList = []
+    for line in clientReader:
+        clientList.append(line)
+    clientListFile.close()
     reader = csv.reader(csvFile, delimiter='|')
     data = list(reader)
     global errorMessages
@@ -22,6 +31,7 @@ def main():
     nameMatchCheck(data)
     checkIllegalNums(data)
     checkIllegalDates(data)
+    checkClientName(clientReader)
     if errors == 1:
         print("\n\033[1;31;41m**** There were errors in file:\033[0m" + " \033[0;30;43m" + str(fileName) + "\033[0m\n")
         for errs in errorMessages:
@@ -53,7 +63,7 @@ def checkForOverlapSingleRow(reader): ####This function needs to be mathmaticall
         #print(hourCheck)
         #print(minCheck)
         if hourCheck and minCheck < 0 or hourCheck < 0:
-            errorMessages.append("in entry #" + str(rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
+            errorMessages.append("in row #" + str(rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
             global errors
             errors = 1
         rowNum += 1
@@ -87,6 +97,7 @@ def checkIllegalDates(reader):
     global fileMonth
     global fileYear
     global errorMessages
+    yearToBaseFrom = float(fileYear)
     if str(fileYear).isdecimal() is False:
         errorMessages.append("The year in the file name is not correct. ")
         errors = 1
@@ -103,23 +114,26 @@ def checkIllegalDates(reader):
                 print("Quitting...")
                 exit()
             elif userInput == "Y":
-                yearToBaseFrom = fileYear
+                yearToBaseFrom = float(fileYear)
 
     rowNum = 1
     for row in reader:
         dateIn = str(row[1]).split('-')
         dateOut = str(row[3]).split('-')
-
+        if float(dateIn[0]) != yearToBaseFrom:
+            errorMessages.append("In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(dateIn[0]))
+        if float(dateOut[0]) != yearToBaseFrom:
+            errorMessages.append("In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(dateOut[0]))
         if float(dateIn[1]) > 12 or float(dateIn[1]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + "The date in month is out of range. It reads: " + str(dateIn[1]))
+            errorMessages.append("In row #" + str(rowNum) + " the date in month is out of range. It reads: " + str(dateIn[1]))
             errors = 1
         if float(dateIn[2]) > 31 or float(dateIn[2]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + "The date in day is out of range. It reads: " + str(dateIn[2]))
+            errorMessages.append("In row #" + str(rowNum) + " the date in day is out of range. It reads: " + str(dateIn[2]))
         if float(dateOut[1]) > 12 or float(dateOut[1]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + "The date out month is out of range. It reads: " + str(dateOut[1]))
+            errorMessages.append("In row #" + str(rowNum) + " the date out month is out of range. It reads: " + str(dateOut[1]))
             errors = 1
         if float(dateOut[2]) > 31 or float(dateOut[2]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + "The date out day is out of range. It reads: " + str(dateOut[2]))
+            errorMessages.append("In row #" + str(rowNum) + " the date out day is out of range. It reads: " + str(dateOut[2]))
         rowNum += 1
 
 
@@ -186,6 +200,12 @@ def checkFileDate(reader):
                 errors = 1
             rowNum += 1
 
+def checkClientName(clientReader):
+    rowNum = 1
+    global errorMessages
+    for row in clientReader:
+        global errors
+        
 
 
 
