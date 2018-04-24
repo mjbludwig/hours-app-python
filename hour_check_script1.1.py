@@ -8,24 +8,18 @@ def main():
     try:
         csvFile = open(fileName, 'r')
     except FileNotFoundError:
-        print("\n*********   The file you supplied does not exist.   **********\n")
-        print("\nUsage:   " + str(sys.argv[0] + " -s /home/user/example\n\noptions are:\n\
-              -s  single user file\n              -m  multi user file\n"))
-        quit()
+        print("\n*********   The file \"%s\" does not exist.   **********\n" % csvFile)
+        return 
 
     reader = csv.reader(csvFile, delimiter='|')
-    if str(option) == "-s":
-        data = list(reader)
-        checkForBlanks(data)
-        checkForOverlapSingleRow(data)
-        checkHourIncrement(data)
-        checkFileDate(data)
-        nameMatchCheck(data)
-        checkIllegalNums(data)
-        checkIllegalDates(data)
-    elif str(option) == "-m":
-        print("\nThe multi user mode is still in developement, use -s for now...\n")
-
+    data = list(reader)
+    checkForBlanks(data)
+    checkForOverlapSingleRow(data)
+    checkHourIncrement(data)
+    checkFileDate(data)
+    nameMatchCheck(data)
+    checkIllegalNums(data)
+    checkIllegalDates(data)
     if errors == 1:
         sys.exit(1)
     elif errors == 0:
@@ -191,39 +185,17 @@ def checkFileDate(reader):
 
 '''-----------------INITIALISATION AND RUN MAIN()---------------------'''
 
-
-
-try:
-    fileName = str(sys.argv[2])
-except IndexError:
-    print("\nUsage:   " + str(sys.argv[0] + " -s /home/user/example\n\noptions are:\n\
-          -s  single user file\n              -m  multi user file\n"))
-    quit()
-
-try:
-    option = str(sys.argv[1])
-except IndexError:
-    print("\nUsage:   " + str(sys.argv[0] + " -s /home/user/example\n\noptions are:\n\
-          -s  single user file\n              -m  multi user file\n"))
-    quit()
-
-if str(option) != "-s" and str(option) != "-m":
-    print("\nUsage:   " + str(sys.argv[0] + " -s /home/user/example\n\noptions are:\n\
-          -s  single user file\n              -m  multi user file\n"))
-    quit()
-
-errors = 0
-actualFileName = fileName.split('/')
-fileFields = str(actualFileName[-1]).split('-')
-fileYear = fileFields[0]
-fileMonth = fileFields[1]
-fileDay = fileFields[2]
-fileDate = '-'.join(fileFields[0:-1])
-fileUserName = fileFields[3]
-hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Position", "Emergency", \
-                    'Billable', 'Comment']
-
-
-
-
-main()
+fileArgs = sys.argv[1:]
+for args in fileArgs:
+    fileName = args
+    errors = 0
+    actualFileName = fileName.split('/')
+    fileFields = str(actualFileName[-1]).split('-')
+    fileYear = fileFields[0]
+    fileMonth = fileFields[1]
+    fileDay = fileFields[2]
+    fileDate = '-'.join(fileFields[0:-1])
+    fileUserName = fileFields[3]
+    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Position", "Emergency", \
+                        'Billable', 'Comment']
+    main()
