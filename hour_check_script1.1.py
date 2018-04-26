@@ -37,6 +37,20 @@ def main():
     csvFile.close()
     clientListFile.close()
 
+
+def checkForBlanks(reader):
+    global hoursEntryFormat
+    global errorMessages
+    rowNum = 1
+    for row in reader:
+        for entry in range(len(row)):
+            if len(row[entry]) == 0:
+                errorMessages.append("empty field: " + hoursEntryFormat[entry] + " in row #" + str(rowNum))
+                global errors
+                errors = 1
+        rowNum += 1
+
+
 def checkClientName(data, clientList):
     rowNum = 1
     global errorMessages
@@ -54,8 +68,8 @@ def checkHourIncrement(reader):
     rowNum = 1
     global errorMessages
     for row in reader:
-        workTime = str(row[5]).split(':')
-        if int(workTime[1]) % 15 != 0:
+        workTime = str(row[5]).split('.')
+        if int(workTime[1]) % .25 != 0:
             errorMessages.append("Row #" + str(rowNum) + " is not in 15 minute increments, it reads: " + str(workTime[0]) + ":" + str(workTime[1]))
             global errors
             errors = 1
@@ -88,17 +102,6 @@ def nameMatchCheck(reader):
             errors = 1
         rowNum += 1
 
-def checkForBlanks(reader):
-    global hoursEntryFormat
-    global errorMessages
-    rowNum = 1
-    for row in reader:
-        for entry in range(len(row)):
-            if len(row[entry]) == 0:
-                errorMessages.append("empty field: " + hoursEntryFormat[entry] + " in row #" + str(rowNum))
-                global errors
-                errors = 1
-        rowNum += 1
 
 def checkIllegalDates(reader):
     global errors
