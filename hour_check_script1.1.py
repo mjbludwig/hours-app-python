@@ -11,15 +11,13 @@ def main():
         print("\n*********   The file \"%s\" does not exist.   **********\n" % csvFile)
         return
     try:
-        clientListFile = open('/projects/clients/bin/projects-show-all', 'r')
+        clientListFile = open('./projects/clients/bin/projects-show-all', 'r')
     except FileNotFoundError:
         print("\n\033[1;31;41m*** Could not find \"projects-show-all\" file\033[0m\n")
         quit()
-    clientReader = csv.reader(clientListFile)
     clientList = []
-    for line in clientReader:
-        clientList.append(line)
-    clientListFile.close()
+    for lines in clientListFile.readlines():
+        clientList.append(lines.strip())
     reader = csv.reader(csvFile, delimiter='|')
     data = list(reader)
     global errorMessages
@@ -31,14 +29,25 @@ def main():
     nameMatchCheck(data)
     checkIllegalNums(data)
     checkIllegalDates(data)
-    checkClientName(clientReader)
+    checkClientName(data, clientList)
     if errors == 1:
         print("\n\033[1;31;41m**** There were errors in file:\033[0m" + " \033[0;30;43m" + str(fileName) + "\033[0m\n")
         for errs in errorMessages:
             print("       => " + errs)
     csvFile.close()
+    clientListFile.close()
 
-
+def checkClientName(data, clientList):
+    rowNum = 1
+    global errorMessages
+    global errors
+    #print(clientList)
+    #print(data)
+    for row in data:
+        if not str(row[6]) in clientList:
+            print("\033[0;33;41m" + str(row[6] + "\033[0m"))
+            errorMessages.append("Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(row[6]))
+            errors = 1
 
 
 def checkHourIncrement(reader):
@@ -200,11 +209,6 @@ def checkFileDate(reader):
                 errors = 1
             rowNum += 1
 
-def checkClientName(clientReader):
-    rowNum = 1
-    global errorMessages
-    for row in clientReader:
-        global errors
         
 
 
@@ -224,7 +228,7 @@ for args in fileArgs:
     fileDay = fileFields[2]
     fileDate = '-'.join(fileFields[0:-1])
     fileUserName = fileFields[3]
-    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Position", "Emergency", \
+    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
                         'Billable', 'Comment']
     main()
     fileNumber += 1
