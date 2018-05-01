@@ -2,6 +2,7 @@
 import csv
 import sys
 import datetime
+import re
 
 
 def main():
@@ -55,27 +56,35 @@ def checkClientName(data, clientList):
     rowNum = 1
     global errorMessages
     global errors
-    #print(clientList)
-    #print(data)
+    # print(clientList)
+    # print(data)
     for row in data:
         if not str(row[6]) in clientList:
             print("\033[0;33;41m" + str(row[6] + "\033[0m"))
-            errorMessages.append("Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(row[6]))
+            errorMessages.append(
+                "Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(
+                    row[6]))
             errors = 1
 
 
-def checkHourIncrement(reader):
+def checkHourIncrement(reader):       ####### NEED TO FIX ##### NEED TO ERROR HANDLE BAD DILIMITERS IN WORK HOURS
     rowNum = 1
     global errorMessages
     for row in reader:
-        workTime = str(row[5]).split('.')
-        if int(workTime[1]) % .25 != 0:
-            errorMessages.append("Row #" + str(rowNum) + " is not in 15 minute increments, it reads: " + str(workTime[0]) + ":" + str(workTime[1]))
+        print(row[5])
+        workTime = re.split('.| :', row[5])
+        workMin = workTime[1]
+        if float(workMin) % .25 != 0:
+            errorMessages.append(
+                "Row #" + str(rowNum) + " is not in 15 minute increments, it reads: " + str(workTime[0]) + ":" + str(
+                    workTime[1]))
             global errors
             errors = 1
         rowNum += 1
 
-def checkForOverlapSingleRow(reader): ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
+
+def checkForOverlapSingleRow(
+        reader):  ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
     rowNum = 1
     global errorMessages
     for row in reader:
@@ -83,13 +92,15 @@ def checkForOverlapSingleRow(reader): ####This function needs to be mathmaticall
         timeOut = str(row[4]).split(':')
         hourCheck = float(timeOut[0]) - float(timeIn[0])
         minCheck = float(timeOut[1]) - float(timeIn[1])
-        #print(hourCheck)
-        #print(minCheck)
+        # print(hourCheck)
+        # print(minCheck)
         if hourCheck and minCheck < 0 or hourCheck < 0:
-            errorMessages.append("in row #" + str(rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
+            errorMessages.append("in row #" + str(
+                rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
             global errors
             errors = 1
         rowNum += 1
+
 
 def nameMatchCheck(reader):
     global fileUserName
@@ -97,7 +108,8 @@ def nameMatchCheck(reader):
     rowNum = 1
     for row in reader:
         if str(row[0]) != str(fileUserName):
-            errorMessages.append("Name field for row #" + str(rowNum) + " does not match file name, it says: " + str(row[0]))
+            errorMessages.append(
+                "Name field for row #" + str(rowNum) + " does not match file name, it says: " + str(row[0]))
             global errors
             errors = 1
         rowNum += 1
@@ -119,7 +131,8 @@ def checkIllegalDates(reader):
     else:
         if str(fileYear) != str(datetime.datetime.now().year):
             print(datetime.datetime.now().year)
-            userInput = str(input("This file is from a different year than it is currently, it reads: " + str(fileYear) + ". Continue? (Y/N) "))
+            userInput = str(input("This file is from a different year than it is currently, it reads: " + str(
+                fileYear) + ". Continue? (Y/N) "))
             while userInput != "Y" and userInput != "N":
                 userInput = str(input("Enter Y or N "))
             if userInput == "N":
@@ -133,19 +146,27 @@ def checkIllegalDates(reader):
         dateIn = str(row[1]).split('-')
         dateOut = str(row[3]).split('-')
         if float(dateIn[0]) != yearToBaseFrom:
-            errorMessages.append("In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(dateIn[0]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(
+                    dateIn[0]))
         if float(dateOut[0]) != yearToBaseFrom:
-            errorMessages.append("In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(dateOut[0]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the year in the date in field is not from this year. It reads: " + str(
+                    dateOut[0]))
         if float(dateIn[1]) > 12 or float(dateIn[1]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + " the date in month is out of range. It reads: " + str(dateIn[1]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the date in month is out of range. It reads: " + str(dateIn[1]))
             errors = 1
         if float(dateIn[2]) > 31 or float(dateIn[2]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + " the date in day is out of range. It reads: " + str(dateIn[2]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the date in day is out of range. It reads: " + str(dateIn[2]))
         if float(dateOut[1]) > 12 or float(dateOut[1]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + " the date out month is out of range. It reads: " + str(dateOut[1]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the date out month is out of range. It reads: " + str(dateOut[1]))
             errors = 1
         if float(dateOut[2]) > 31 or float(dateOut[2]) < 1:
-            errorMessages.append("In row #" + str(rowNum) + " the date out day is out of range. It reads: " + str(dateOut[2]))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the date out day is out of range. It reads: " + str(dateOut[2]))
         rowNum += 1
 
 
@@ -162,66 +183,78 @@ def checkIllegalNums(reader):
             errorMessages.append("In row #" + str(rowNum) + " the hour in time is a decimal. It reads: " + str(hourIn))
             errors = 1
         if float(hourOut) % 1 > 0:
-            errorMessages.append("In row #" + str(rowNum) + " the hour out time is a decimal. It reads: " + str(hourOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the hour out time is a decimal. It reads: " + str(hourOut))
             errors = 1
         if float(minIn) % 1 > 0:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time in field are a decimal. It reads: " + str(minIn))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time in field are a decimal. It reads: " + str(minIn))
             errors = 1
         if float(minOut) % 1 > 0:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time out field are a decimal. It reads: " + str(minOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time out field are a decimal. It reads: " + str(minOut))
             errors = 1
         if float(hourIn) > 24:
-            errorMessages.append("In row #" + str(rowNum) + " the hour in time is greater than 24. It reads: " + str(hourIn))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the hour in time is greater than 24. It reads: " + str(hourIn))
             errors = 1
         elif float(hourIn) < 0:
             errorMessages.append("In row #" + str(rowNum) + " the hour in time is a negative. It reads: " + str(hourIn))
             errors = 1
         if float(hourOut) > 24:
-            errorMessages.append("In row #" + str(rowNum) + " the hour out time is greater than 24. It reads: " + str(hourOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the hour out time is greater than 24. It reads: " + str(hourOut))
             errors = 1
         elif float(hourOut) < 0:
-            errorMessages.append("In row #" + str(rowNum) + " the hour out time is a negative. It reads: " + str(hourOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the hour out time is a negative. It reads: " + str(hourOut))
             errors = 1
         if float(minIn) > 59:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time in field are over 59. It reads: " + str(minIn))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time in field are over 59. It reads: " + str(minIn))
             errors = 1
         elif float(minIn) < 0:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time in field are negative. It reads: " + str(minIn))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time in field are negative. It reads: " + str(minIn))
             errors = 1
         if float(minOut) > 59:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time out field are over 59. It reads: " + str(minOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time out field are over 59. It reads: " + str(minOut))
             errors = 1
         elif float(minOut) < 0:
-            errorMessages.append("In row #" + str(rowNum) + " the minutes in the time out field are negative It reads: " + str(minOut))
+            errorMessages.append(
+                "In row #" + str(rowNum) + " the minutes in the time out field are negative It reads: " + str(minOut))
             errors = 1
         rowNum += 1
-        #print(hourIn)
-        #print(hourOut)
+        # print(hourIn)
+        # print(hourOut)
+
 
 def checkFileDate(reader):
-        rowNum = 1
-        global errorMessages
-        for row in reader:
-            global fileDate
-            global errors
-            if str(row[1]) != str(fileDate):
-                errorMessages.append("Row #" + str(rowNum) + ", the date in the \"Date In\" field does not match file name, it says: " + str(row[1]))
-                errors = 1
-            elif str(row[3]) != str(fileDate):
-                errorMessages.append("Row #" + str(rowNum) + ", the date in the \"Date Out\" field does not match file name, it says: " + str(row[3]))
-                errors = 1
-            rowNum += 1
-
-        
-
+    rowNum = 1
+    global errorMessages
+    for row in reader:
+        global fileDate
+        global errors
+        if str(row[1]) != str(fileDate):
+            errorMessages.append(
+                "Row #" + str(rowNum) + ", the date in the \"Date In\" field does not match file name, it says: " + str(
+                    row[1]))
+            errors = 1
+        elif str(row[3]) != str(fileDate):
+            errorMessages.append("Row #" + str(
+                rowNum) + ", the date in the \"Date Out\" field does not match file name, it says: " + str(row[3]))
+            errors = 1
+        rowNum += 1
 
 
 '''-----------------INITIALISATION AND RUN MAIN()---------------------'''
 
 fileArgs = sys.argv[1:]
 fileNumber = 1
-#print(str(fileArgs))
+# print(str(fileArgs))
 for args in fileArgs:
+    print(str(args))
     fileName = args
     errors = 0
     actualFileName = fileName.split('/')
