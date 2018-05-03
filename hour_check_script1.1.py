@@ -60,31 +60,33 @@ def checkClientName(data, clientList):
     # print(data)
     for row in data:
         if not str(row[6]) in clientList:
-            print("\033[0;33;41m" + str(row[6] + "\033[0m"))
+            #print("\033[0;33;41m" + str(row[6] + "\033[0m"))
             errorMessages.append(
                 "Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(
                     row[6]))
             errors = 1
-
-
-def checkHourIncrement(reader):       ####### NEED TO FIX ##### NEED TO ERROR HANDLE BAD DILIMITERS IN WORK HOURS
-    rowNum = 1
-    global errorMessages
-    for row in reader:
-        print(row[5])
-        workTime = re.split('.| :', row[5])
-        workMin = workTime[1]
-        if float(workMin) % .25 != 0:
-            errorMessages.append(
-                "Row #" + str(rowNum) + " is not in 15 minute increments, it reads: " + str(workTime[0]) + ":" + str(
-                    workTime[1]))
-            global errors
-            errors = 1
         rowNum += 1
 
 
-def checkForOverlapSingleRow(
-        reader):  ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
+def checkHourIncrement(reader):       
+    rowNum = 1
+    global errorMessages
+    for row in reader:
+        try:
+            workTime = str(row[5]).split('.')
+            if float(workTime[1]) % .25 != 0:
+                errorMessages.append(
+                    "Row #" + str(rowNum) + ", hours worked time is not in 15 minute increments, it reads: " + str(workTime[0]) + "." + str(
+                        workTime[1]))
+                global errors
+                errors = 1
+        except IndexError:
+            errorMessages.append("Row #" + str(rowNum) + ", the hours worked time is not formatted correctly,"
+                                                         " it reads: " + str(row[5]))
+            errors = 1
+        rowNum += 1
+
+def checkForOverlapSingleRow(reader):  ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
     rowNum = 1
     global errorMessages
     for row in reader:
