@@ -42,6 +42,8 @@ def main():
 def checkForBlanks(reader):
     global hoursEntryFormat
     global errorMessages
+    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
+                        'Billable', 'Comment']
     rowNum = 1
     for row in reader:
         for entry in range(len(row)):
@@ -60,7 +62,6 @@ def checkClientName(data, clientList):
     # print(data)
     for row in data:
         if not str(row[6]) in clientList:
-            #print("\033[0;33;41m" + str(row[6] + "\033[0m"))
             errorMessages.append(
                 "Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(
                     row[6]))
@@ -68,7 +69,7 @@ def checkClientName(data, clientList):
         rowNum += 1
 
 
-def checkHourIncrement(reader):       
+def checkHourIncrement(reader):
     rowNum = 1
     global errorMessages
     for row in reader:
@@ -256,19 +257,22 @@ fileArgs = sys.argv[1:]
 fileNumber = 1
 # print(str(fileArgs))
 for args in fileArgs:
-    print(str(args))
+    #print(str(args))
     fileName = args
     errors = 0
-    actualFileName = fileName.split('/')
-    fileFields = str(actualFileName[-1]).split('-')
-    fileYear = fileFields[0]
-    fileMonth = fileFields[1]
-    fileDay = fileFields[2]
-    fileDate = '-'.join(fileFields[0:-1])
-    fileUserName = fileFields[3]
-    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
-                        'Billable', 'Comment']
-    main()
+    try:
+        actualFileName = fileName.split('/')
+        fileFields = str(actualFileName[-1]).split('-')
+        fileYear = fileFields[0]
+        fileMonth = fileFields[1]
+        fileDay = fileFields[2]
+        fileDate = '-'.join(fileFields[0:-1])
+        fileUserName = fileFields[3]
+    except IndexError:
+        print("\n\033[1;31;41m" + "This file has an invalid name, skipping...: " + "\033[0m" + " \033[0;30;43m" + str(fileName) + "\033[0m\n")
+        errors = 1
+    else:
+        main()
     fileNumber += 1
 print("")
 if errors == 1:
