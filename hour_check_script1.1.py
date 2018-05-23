@@ -7,12 +7,14 @@ import re
 
 def main():
     try:
-        csvFile = open(fileName, 'r')
+        csvFile = open(fileName, 'r')   ### open and test files passed as arguments
     except FileNotFoundError:
         print("\n*********   The file \"%s\" does not exist.   **********\n" % csvFile)
         return
     try:
+        ######## The location of the clients file for checking against. ########
         clientListFile = open('./projects/clients/bin/projects-show-all', 'r')
+        ######## Change this when implementing on new system ##############
     except FileNotFoundError:
         print("\n\033[1;31;41m*** Could not find \"projects-show-all\" file\033[0m\n")
         quit()
@@ -21,7 +23,7 @@ def main():
         clientList.append(lines.strip())
     reader = csv.reader(csvFile, delimiter='|')
     data = list(reader)
-    global errorMessages
+    global errorMessages ### This list holds all errors found by the checking functions
     errorMessages = []
     checkForBlanks(data)
     checkForOverlapSingleRow(data)
@@ -43,7 +45,7 @@ def checkForBlanks(reader):
     global hoursEntryFormat
     global errorMessages
     hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
-                        'Billable', 'Comment']
+                        'Billable', 'Comment']  #show what field is empty
     rowNum = 1
     for row in reader:
         for entry in range(len(row)):
@@ -75,7 +77,7 @@ def checkHourIncrement(reader):
     for row in reader:
         try:
             workTime = str(row[5]).split('.')
-            if float(workTime[1]) % .25 != 0:
+            if float(workTime[1]) % .25 != 0: # using remainders to check increment
                 errorMessages.append(
                     "Row #" + str(rowNum) + ", hours worked time is not in 15 minute increments, it reads: " + str(workTime[0]) + "." + str(
                         workTime[1]))
@@ -87,7 +89,7 @@ def checkHourIncrement(reader):
             errors = 1
         rowNum += 1
 
-def checkForOverlapSingleRow(reader):  ####This function needs to be mathmatically rewritten, it does not accurately reflect overlapped times
+def checkForOverlapSingleRow(reader):
     rowNum = 1
     global errorMessages
     for row in reader:
@@ -95,8 +97,6 @@ def checkForOverlapSingleRow(reader):  ####This function needs to be mathmatical
         timeOut = str(row[4]).split(':')
         hourCheck = float(timeOut[0]) - float(timeIn[0])
         minCheck = float(timeOut[1]) - float(timeIn[1])
-        # print(hourCheck)
-        # print(minCheck)
         if hourCheck and minCheck < 0 or hourCheck < 0:
             errorMessages.append("in row #" + str(
                 rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
