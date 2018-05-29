@@ -255,7 +255,11 @@ def checkFileDate(reader):
 
 fileArgs = sys.argv[1:]
 fileNumber = 1
-# print(str(fileArgs))
+#print(str(fileArgs))
+if len(fileArgs) == 0:
+    print("please supply a hours file as an argument.")
+    quit()
+
 for args in fileArgs:
     #print(str(args))
     fileName = args
