@@ -8,21 +8,7 @@ fullFileFunctions = {}
 fieldFunctions = {}
 
 def main(fileName):
-    fileContents = os.system('cat s%' % fileName)
-    if os.system('test -e; echo $?') == "0":
-        print("File s% does not exist" % fileName)
-
-    try:
-        actualFileName = fileName.split('/')
-        fileFields = str(actualFileName[-1]).split('-')
-        fileYear = fileFields[0]
-        fileMonth = fileFields[1]
-        fileDay = fileFields[2]
-        fileDate = '-'.join(fileFields[0:-1])
-        fileUserName = fileFields[3]
-    except IndexError:
-        print("\n\033[1;31;41m" + "This file has an invalid name, skipping...: " + "\033[0m" + " \033[0;30;43m" + str(
-            fileName) + "\033[0m\n")
+    a = 1
 
 
 
@@ -234,7 +220,6 @@ def checkFileDate(fileContents, fileDate):
         rowNum += 1
     if err is True:
         return True
-
 fieldFunctions["checkFileDate"]=checkFileDate
 
 
