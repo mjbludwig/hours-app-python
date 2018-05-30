@@ -216,9 +216,29 @@ def checkHourIncrement(fileContents, **kwargs):
         return True
 fieldFunctions["checkHourIncrement"]=checkHourIncrement
 
+def checkClientName(fileContents, clientList, **kwargs):
+    rowNum = 1
+    errs = False
+    for row in fileContents:
+        row = str(row).split('|')
+        if not str(row[6]) in clientList:
+            errs = True
+            print(
+                "Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(
+                    row[6]))
+        rowNum += 1
+    if errs is True:
+        return True
+fieldFunctions["checkClientName"]=checkClientName
 
 
-"""                 ---- MAIN LOOP ----                         """
+"""                 ---- MAIN LOOP ----                         
+    the variable "err", when True will leave the script with an exit code of 1 when finished. if it is False it will leave
+    with a 0. To utilize this in a function, return a value or True or False depending on the result of the checking function.
+
+
+"""
+
 
 for args in sys.argv[1:]:
     err = False
@@ -243,18 +263,15 @@ for args in sys.argv[1:]:
         break
     hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
                             'Billable', 'Comment']  # show what field is empty
+    #clientList = str(subprocess.check_output(["./projects/clients/bin/projects-show-all"])).split('\n')
     print("\n\033[1;31;41mChecking:\033[0m %s" % str(args))
     for key, func in fieldFunctions.items():
-        result = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName, hoursEntryFormat=hoursEntryFormat)
-        if result is True:
-            err = True
-        elif result == "skip":
-            err = True
+        err = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName,
+                      hoursEntryFormat=hoursEntryFormat)#, clientList=clientList)
+        if err == "skip":
             break
     for key, func in fullFileFunctions.items():
-        result = func(fileContents=fileContents, fileDate=fileDate)
-        if result is True:
-            err = True
+        err = func(fileContents=fileContents, fileDate=fileDate)
     if err is False:
         print("file: %s is all good!" % str(args))
 
