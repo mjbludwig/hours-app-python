@@ -9,6 +9,20 @@ fullFileFunctions = {}
 fieldFunctions = {}
 
 
+def checkForBlanks(fileContents, hoursEntryFormat, **kwargs):
+    rowNum = 1
+    errs = False
+    for row in fileContents:
+        row = str(row).split('|')
+        for entry in range(len(row)):
+            if len(row[entry]) == 0:
+                errs = True
+                print("empty field: " + hoursEntryFormat[entry] + " in row #" + str(rowNum))
+                print("Skipping rest of this files checks...")
+        rowNum += 1
+    if errs is True:
+        return "skip"
+fieldFunctions["checkForBlanks"]=checkForBlanks
 
 def checkFileDate(fileContents, fileDate, **kwargs):
     rowNum = 1
@@ -164,6 +178,46 @@ def nameMatchCheck(fileContents, fileUserName, **kwargs):
         return True
 fieldFunctions["nameMatchCheck"]=nameMatchCheck
 
+def checkForOverlapSingleRow(fileContents, **kwargs):
+    rowNum = 1
+    errs = False
+    for row in fileContents:
+        row = str(row).split('|')
+        timeIn = str(row[2]).split(':')
+        timeOut = str(row[4]).split(':')
+        hourCheck = float(timeOut[0]) - float(timeIn[0])
+        minCheck = float(timeOut[1]) - float(timeIn[1])
+        if hourCheck and minCheck < 0 or hourCheck < 0:
+            errs = True
+            print("in row #" + str(
+                rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
+        rowNum += 1
+    if errs is True:
+        return True
+fieldFunctions["checkForOverlapSingleRow"]=checkForOverlapSingleRow
+
+def checkHourIncrement(fileContents, **kwargs):
+    rowNum = 1
+    errs = False
+    for row in fileContents:
+        row = str(row).split('|')
+        try:
+            workTime = str(row[5]).split('.')
+            if float(workTime[1]) % .25 != 0: # using remainders to check increment
+                errs = True
+                print(
+                    "Row #" + str(rowNum) + ", hours worked time is not in 15 minute increments, it reads: " + str(workTime[0]) + "." + str(
+                        workTime[1]))
+        except IndexError:
+            errs = True
+            print("Row #" + str(rowNum) + ", the hours worked time is not formatted correctly, it reads: " + str(row[5]))
+        rowNum += 1
+    if errs is True:
+        return True
+fieldFunctions["checkHourIncrement"]=checkHourIncrement
+
+
+
 """                 ---- MAIN LOOP ----                         """
 
 for args in sys.argv[1:]:
@@ -181,16 +235,22 @@ for args in sys.argv[1:]:
         fileDay = fileFields[2]
         fileDate = '-'.join(fileFields[0:-1])
         fileUserName = fileFields[3]
+
     except IndexError:
         print("\n\033[1;31;41m" + "This file has an invalid name, skipping...: " + "\033[0m" + " \033[0;30;43m" + str(
             args) + "\033[0m\n")
         err = True
         break
+    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
+                            'Billable', 'Comment']  # show what field is empty
     print("\n\033[1;31;41mChecking:\033[0m %s" % str(args))
     for key, func in fieldFunctions.items():
-        result = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName)
+        result = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName, hoursEntryFormat=hoursEntryFormat)
         if result is True:
             err = True
+        elif result == "skip":
+            err = True
+            break
     for key, func in fullFileFunctions.items():
         result = func(fileContents=fileContents, fileDate=fileDate)
         if result is True:
