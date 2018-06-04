@@ -29,7 +29,8 @@ def checkFileDate(fileContents, fileDate, **kwargs):
     errs = False
     for row in fileContents:
         row = str(row).split('|')
-        if row[1] != str(fileDate):
+        rowDate = row[1].split('-')
+        if rowDate[1:] != str(fileDate).split('-')[1:]:
             errs = True
             print(
                 "Row #" + str(rowNum) + ", the date in the \"Date In\" field does not match file name, it says: " + str(
@@ -216,6 +217,7 @@ def checkHourIncrement(fileContents, **kwargs):
         return True
 fieldFunctions["checkHourIncrement"]=checkHourIncrement
 
+'''
 def checkClientName(fileContents, clientList, **kwargs):
     rowNum = 1
     errs = False
@@ -230,7 +232,7 @@ def checkClientName(fileContents, clientList, **kwargs):
     if errs is True:
         return True
 fieldFunctions["checkClientName"]=checkClientName
-
+'''
 
 """                 ---- MAIN LOOP ----                         
     the variable "err", when True will leave the script with an exit code of 1 when finished. if it is False it will leave
