@@ -4,9 +4,40 @@ import sys
 import datetime
 import re
 import subprocess
+import csv
 
 fullFileFunctions = {}
 fieldFunctions = {}
+
+
+def timeFixing(time): #for use in checking for full file overlap
+    time = str(time).split(':')
+    hour = time[0]
+    minutes = time[1]
+    if minutes == "15":
+        minutes = .25
+    elif minutes == "30":
+        minutes = .5
+    elif minutes == "45":
+        minutes = .75
+    elif minutes == "00":
+        minutes = 0
+    time = int(hour) + minutes
+    return float(time)
+
+def checkForFileOverlap(fileContents, **kwargs):
+    clientTimes = {}
+    for row in fileContents:
+        row = str(row).split('|')
+        clientTimes.setdefault(row[6], []).append([timeFixing(row[2]), timeFixing(row[4])])
+    for clients in clientTimes.keys():
+        for tester in clientTimes[clients]:
+            for set in clientTimes[clients]:
+                if tester[0] == set[0] and tester[1] == set[1]:
+                    break
+                elif tester[0] < set[1] and tester[1] > set[0]:
+                    print("There is an overlap in the times: " + str(tester) + " and " + str(set) + " for client: " + clients)
+fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
 
 
 def checkForBlanks(fileContents, hoursEntryFormat, **kwargs):
