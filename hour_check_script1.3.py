@@ -10,7 +10,7 @@ fullFileFunctions = {}
 fieldFunctions = {}
 
 
-def timeFixing(time): #for use in checking for full file overlap
+def convertToBaseTen(time): #for use in checking for full file overlap
     time = str(time).split(':')
     hour = time[0]
     minutes = time[1]
@@ -28,17 +28,23 @@ def timeFixing(time): #for use in checking for full file overlap
 def checkForFileOverlap(fileContents, **kwargs):
     timesInRows = {}
     rowNum = 1
+    errs = False
     for row in fileContents:
         row = str(row).split('|')
-        timesInRows.setdefault(str(rowNum), []).append([timeFixing(row[2]), timeFixing(row[4])])
+        timesInRows[rowNum]=([convertToBaseTen(row[2]), convertToBaseTen(row[4])])
         rowNum += 1
-    print(timesInRows.values())
     for tester in timesInRows.values():
         for set in timesInRows.values():
             if tester[0] == set[0] and tester[1] == set[1]:
                 break
             elif tester[0] < set[1] and tester[1] > set[0]:
-                print("There is an overlap in the times: " + str(tester) + " and " + str(set) + " for client: ")
+                testerRow = [key for key, value in timesInRows.items() if value == tester][0]
+                setRow = [key for key, value in timesInRows.items() if value == set][0]
+                print("There is an overlap in the times: " + str(tester) + "(Row #" + str(testerRow) + ") and " + str(set)
+                      + "(Row #" + str(setRow) + ")")
+                errs = True
+    if errs is True:
+        return True
 fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
 
 
@@ -274,9 +280,8 @@ fieldFunctions["checkClientName"]=checkClientName
 
 """
 
-
+err = False
 for args in sys.argv[1:]:
-    err = False
     fileContents = str(subprocess.check_output(["cat", str(args)])).replace('\\n', '\n').strip('\'').strip("b'").strip().split('\n')
     if subprocess.check_call(["test", "-e"]) == 1:
         print("File %s does not exist" % str(args))
