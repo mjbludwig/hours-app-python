@@ -14,13 +14,15 @@ def checkFieldNumber(fileContents, **kwargs):  ###!!!!! LET THIS BE THE FIRST FU
     errs = False
     for row in fileContents:
         row = str(row).split('|')
-        if len(row) != 7:
+        if len(row) != 8:
             print("Row #" + str(rowNum) + " is not formatted with correct number of fields.")
             errs = True
         rowNum += 1
     if errs is True:
         print("There are issues with the formatting of fields in this file...skipping the rest of checks for this file.")
-    return "skip"
+        return "skip"
+    else:
+        return False
 fullFileFunctions["checkFieldNumber"]=checkFieldNumber
 
 def convertToBaseTen(time): #for use in checking for full file overlap
@@ -60,6 +62,8 @@ def checkForFileOverlap(fileContents, **kwargs):
                 errs = True
     if errs is True:
         return True
+    else:
+        return False
 fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
 
 
@@ -76,6 +80,8 @@ def checkForBlanks(fileContents, hoursEntryFormat, **kwargs):
         rowNum += 1
     if errs is True:
         return "skip"
+    else:
+        return False
 fieldFunctions["checkForBlanks"]=checkForBlanks
 
 def checkFileDate(fileContents, fileDate, **kwargs):
@@ -83,20 +89,32 @@ def checkFileDate(fileContents, fileDate, **kwargs):
     errs = False
     for row in fileContents:
         row = str(row).split('|')
-        rowDateIn = str(row[1].split(' ')[0]).split('-')
-        rowDateOut = str(row[2].split(' ')[0]).split('-')
-        if rowDateIn[1:] != str(fileDate).split('-')[1:]:
+        rowDateIn = str(row[1].split(' ')[0]).split('-')[1:]
+        rowDateOut = str(row[2].split(' ')[0]).split('-')[1:]
+        fileMonthAndDay = str(fileDate).split('-')[1:]
+        if str(rowDateIn[0]) != str(fileMonthAndDay[0]):
             errs = True
             print(
-                "Row #" + str(rowNum) + ", the date in the \"Date In\" field does not match file name, it says: " + str(
-                    str(row[1]).split(' ')[0]))
-        elif str(rowDateOut[1:]) != str(fileDate).split('-')[1:]:
+                "Row #" + str(rowNum) + ", the month in the \"Date In\" field does not match file name month, it says: " + str(
+                    str(rowDateIn[0])))
+        elif str(rowDateIn[1]) != str(fileMonthAndDay[1]):
+            errs = True
+            print(
+                "Row #" + str(rowNum) + ", the day in the \"Date In\" field does not match file name day, it says: " + str(
+                    str(rowDateIn[1])))
+        elif str(rowDateOut[0]) != str(fileMonthAndDay[0]):
             errs = True
             print("Row #" + str(
-                rowNum) + ", the date in the \"Date Out\" field does not match file name, it says: " + str(row[2]).split(' ')[0])
+                rowNum) + ", the month in the \"Date Out\" field does not match file name month, it says: " + str(rowDateOut[0]))
+        elif str(rowDateOut[1]) != str(fileMonthAndDay[1]):
+            errs = True
+            print("Row #" + str(
+                rowNum) + ", the day in the \"Date Out\" field does not match file name day, it says: " + str(rowDateOut[1]))
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkFileDate"]=checkFileDate
 
 def checkIllegalNums(fileContents, **kwargs):
@@ -157,6 +175,8 @@ def checkIllegalNums(fileContents, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkIllegalNums"]=checkIllegalNums
 
 
@@ -217,6 +237,8 @@ def checkIllegalDates(fileContents, fileYear, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkIllegalDates"]=checkIllegalDates
 
 
@@ -232,6 +254,8 @@ def nameMatchCheck(fileContents, fileUserName, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["nameMatchCheck"]=nameMatchCheck
 
 def checkForOverlapSingleRow(fileContents, **kwargs):
@@ -250,6 +274,8 @@ def checkForOverlapSingleRow(fileContents, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkForOverlapSingleRow"]=checkForOverlapSingleRow
 
 def checkHourIncrement(fileContents, **kwargs):
@@ -270,9 +296,11 @@ def checkHourIncrement(fileContents, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkHourIncrement"]=checkHourIncrement
 
-'''
+
 def checkClientName(fileContents, clientList, **kwargs):
     rowNum = 1
     errs = False
@@ -286,8 +314,10 @@ def checkClientName(fileContents, clientList, **kwargs):
         rowNum += 1
     if errs is True:
         return True
+    else:
+        return False
 fieldFunctions["checkClientName"]=checkClientName
-'''
+
 
 """                 ---- MAIN LOOP ----                         
     the variable "err", when True will leave the script with an exit code of 1 when finished. if it is False it will leave
@@ -298,9 +328,11 @@ fieldFunctions["checkClientName"]=checkClientName
 
 err = False
 for args in sys.argv[1:]:
-    fileContents = str(subprocess.check_output(["cat", str(args)])).replace('\\n', '\n').strip('\'').strip("b'").strip().split('\n')
-    if subprocess.check_call(["test", "-e"]) == 1:
-        print("File %s does not exist" % str(args))
+    print("\n\033[38;5;226mChecking:\033[0m %s" % str(args))
+    try:
+        fileContents = str(subprocess.check_output(["cat", str(args)], stderr=subprocess.DEVNULL)).replace('\\n', '\n').strip('\'').strip("b'").strip().split('\n')
+    except subprocess.CalledProcessError:
+        print("\033[38;5;196mFile: %s does not exist\033[0m\n" % str(args))
         err = True
         break
     try:
@@ -313,28 +345,32 @@ for args in sys.argv[1:]:
         fileUserName = fileFields[3]
 
     except IndexError:
-        print("\n\033[1;31;41m" + "This file has an invalid name, skipping...: " + "\033[0m" + " \033[0;30;43m" + str(
+        print("\n\033[38;5;196m" + "This file has an invalid name, skipping...: " + "\033[0m" + " \033[0;30;43m" + str(
             args) + "\033[0m\n")
         err = True
         break
     hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
                             'Billable', 'Comment']  # show what field is empty
-    #clientList = str(subprocess.check_output(["./projects/clients/bin/projects-show-all"])).split('\n')
-    print("\n\033[1;31;41mChecking:\033[0m %s" % str(args))
+    try:
+        clientList = str(subprocess.check_output(["sh", "/projects/clients/bin/projects-show-all"],
+                                                 stderr=subprocess.DEVNULL))[2:].split('\\n')
+    except subprocess.CalledProcessError:
+        print("\033[38;5;196mCould not find \"/projects/clients/bin/projects-show-all\", check location and permissions?\033[0m\n" % str(args))
+        err = True
+        break
 
     for key, func in fullFileFunctions.items():
         err = func(fileContents=fileContents, fileDate=fileDate)
         if err == "skip":
             break
         else:
-            if err is False:
-                print("file: %s is all good!" % str(args))
             for key, func in fieldFunctions.items():
                 err = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName,
-                              hoursEntryFormat=hoursEntryFormat)#, clientList=clientList)
+                              hoursEntryFormat=hoursEntryFormat, clientList=clientList)
                 if err == "skip":
                     break
-
+    if err is False:
+        print("\033[38;5;82m++ File is all set!\033[0m\n")
 if err is True:
     sys.exit(1)
 else:
