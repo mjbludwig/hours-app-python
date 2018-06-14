@@ -15,11 +15,11 @@ def checkFieldNumber(fileContents, **kwargs):  ###!!!!! LET THIS BE THE FIRST FU
     for row in fileContents:
         row = str(row).split('|')
         if len(row) != 8:
-            print("Row #" + str(rowNum) + " is not formatted with correct number of fields.")
+            print("\033[38;5;196mRow #" + str(rowNum) + " is not formatted with correct number of fields.\033[0m")
             errs = True
         rowNum += 1
     if errs is True:
-        print("There are issues with the formatting of fields in this file...skipping the rest of checks for this file.")
+        print("\033[38;5;196mThere are issues with the formatting of fields in this file...skipping the rest of checks for this file.\033[0m")
         return "skip"
     else:
         return False
@@ -75,8 +75,8 @@ def checkForBlanks(fileContents, hoursEntryFormat, **kwargs):
         for entry in range(len(row)):
             if len(row[entry]) == 0:
                 errs = True
-                print("empty field: " + hoursEntryFormat[entry] + " in row #" + str(rowNum))
-                print("Skipping rest of this files checks...")
+                print("\033[38;5;196mempty field: " + hoursEntryFormat[entry] + " in row #" + str(rowNum))
+                print("Skipping rest of this files checks...\033[0m")
         rowNum += 1
     if errs is True:
         return "skip"
@@ -95,21 +95,21 @@ def checkFileDate(fileContents, fileDate, **kwargs):
         if str(rowDateIn[0]) != str(fileMonthAndDay[0]):
             errs = True
             print(
-                "Row #" + str(rowNum) + ", the month in the \"Date In\" field does not match file name month, it says: " + str(
+                "\033[38;5;196mRow #" + str(rowNum) + ", the month in the \"Date In\" field does not match file name month, it says:\033[0m " + str(
                     str(rowDateIn[0])))
         elif str(rowDateIn[1]) != str(fileMonthAndDay[1]):
             errs = True
             print(
-                "Row #" + str(rowNum) + ", the day in the \"Date In\" field does not match file name day, it says: " + str(
+                "\033[38;5;196mRow #" + str(rowNum) + ", the day in the \"Date In\" field does not match file name day, it says:\033[0m " + str(
                     str(rowDateIn[1])))
         elif str(rowDateOut[0]) != str(fileMonthAndDay[0]):
             errs = True
-            print("Row #" + str(
-                rowNum) + ", the month in the \"Date Out\" field does not match file name month, it says: " + str(rowDateOut[0]))
+            print("\033[38;5;196mRow #" + str(
+                rowNum) + ", the month in the \"Date Out\" field does not match file name month, it says:\033[0m " + str(rowDateOut[0]))
         elif str(rowDateOut[1]) != str(fileMonthAndDay[1]):
             errs = True
-            print("Row #" + str(
-                rowNum) + ", the day in the \"Date Out\" field does not match file name day, it says: " + str(rowDateOut[1]))
+            print("\033[38;5;196mRow #" + str(
+                rowNum) + ", the day in the \"Date Out\" field does not match file name day, it says:\033[0m " + str(rowDateOut[1]))
         rowNum += 1
     if errs is True:
         return True
@@ -128,50 +128,50 @@ def checkIllegalNums(fileContents, **kwargs):
         minOut = str(row[2]).split(' ')[1].split(':')[1]
         if float(hourIn) % 1 > 0:
             errs = True
-            print("In row #" + str(rowNum) + " the hour in time is a decimal. It reads: " + str(hourIn))
+            print("\033[38;5;196mIn row #" + str(rowNum) + " the hour in time is a decimal. It reads:\033[0m " + str(hourIn))
         if float(hourOut) % 1 > 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the hour out time is a decimal. It reads: " + str(hourOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the hour out time is a decimal. It reads:\033[0m " + str(hourOut))
         if float(minIn) % 1 > 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time in field are a decimal. It reads: " + str(minIn))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time in field are a decimal. It reads:\033[0m " + str(minIn))
         if float(minOut) % 1 > 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time out field are a decimal. It reads: " + str(minOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time out field are a decimal. It reads:\033[0m " + str(minOut))
         if float(hourIn) > 24:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the hour in time is greater than 24. It reads: " + str(hourIn))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the hour in time is greater than 24. It reads:\033[0m " + str(hourIn))
         elif float(hourIn) < 0:
             errs = True
-            print("In row #" + str(rowNum) + " the hour in time is a negative. It reads: " + str(hourIn))
+            print("\033[38;5;196mIn row #" + str(rowNum) + " the hour in time is a negative. It reads:\033[0m " + str(hourIn))
         if float(hourOut) > 24:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the hour out time is greater than 24. It reads: " + str(hourOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the hour out time is greater than 24. It reads:\033[0m " + str(hourOut))
         elif float(hourOut) < 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the hour out time is a negative. It reads: " + str(hourOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the hour out time is a negative. It reads:\033[0m " + str(hourOut))
         if float(minIn) > 59:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time in field are over 59. It reads: " + str(minIn))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time in field are over 59. It reads:\033[0m " + str(minIn))
         elif float(minIn) < 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time in field are negative. It reads: " + str(minIn))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time in field are negative. It reads:\033[0m " + str(minIn))
         if float(minOut) > 59:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time out field are over 59. It reads: " + str(minOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time out field are over 59. It reads:\033[0m " + str(minOut))
         elif float(minOut) < 0:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the minutes in the time out field are negative It reads: " + str(minOut))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the minutes in the time out field are negative It reads:\033[0m " + str(minOut))
         rowNum += 1
     if errs is True:
         return True
@@ -185,10 +185,10 @@ def checkIllegalDates(fileContents, fileYear, **kwargs):
     yearToBaseFrom = float(fileYear)
     if str(fileYear).isdecimal() is False:
         errs = True
-        print("The year in the file name is not correct. ")
+        print("\033[38;5;196mThe year in the file name is not correct. \033[0m")
     elif float(fileYear) % 1 > 0:
         errs = True
-        print("The year in the file name is a decimal. ")
+        print("\033[38;5;196mThe year in the file name is a decimal. \033[0m")
     else:
         if str(fileYear) != str(datetime.datetime.now().year):
             print(datetime.datetime.now().year)
@@ -210,30 +210,30 @@ def checkIllegalDates(fileContents, fileYear, **kwargs):
         if float(dateIn[0]) != yearToBaseFrom:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the year in the \"date in\" field does not match the file name. It reads: " + str(
+                "\033[38;5;196mIn row #" + str(rowNum) + " the year in the \"date in\" field does not match the file name. It reads:\033[0m " + str(
                     dateIn[0]))
         if float(dateOut[0]) != yearToBaseFrom:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the year in the \"date out\" field does not match the file name. It reads: " + str(
+                "\033[38;5;196mIn row #" + str(rowNum) + " the year in the \"date out\" field does not match the file name. It reads:\033[0m " + str(
                     dateOut[0]))
         if float(dateIn[1]) > 12 or float(dateIn[1]) < 1:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the date in month is out of range. It reads: " + str(dateIn[1]))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the date in month is out of range. It reads:\033[0m " + str(dateIn[1]))
         if float(dateIn[2]) > 31 or float(dateIn[2]) < 1:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the date in day is out of range. It reads: " + str(dateIn[2]))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the date in day is out of range. It reads:\033[0m " + str(dateIn[2]))
         if float(dateOut[1]) > 12 or float(dateOut[1]) < 1:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the date out month is out of range. It reads: " + str(dateOut[1]))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the date out month is out of range. It reads:\033[0m " + str(dateOut[1]))
             errors = 1
         if float(dateOut[2]) > 31 or float(dateOut[2]) < 1:
             errs = True
             print(
-                "In row #" + str(rowNum) + " the date out day is out of range. It reads: " + str(dateOut[2]))
+                "\033[38;5;196mIn row #" + str(rowNum) + " the date out day is out of range. It reads:\033[0m " + str(dateOut[2]))
         rowNum += 1
     if errs is True:
         return True
@@ -250,7 +250,7 @@ def nameMatchCheck(fileContents, fileUserName, **kwargs):
         if str(row[0]) != str(fileUserName):
             errs = True
             print(
-                "Name field for row #" + str(rowNum) + " does not match file name, it says: " + str(row[0]))
+                "\033[38;5;196mName field for row #" + str(rowNum) + " does not match file name, it says:\033[0m " + str(row[0]))
         rowNum += 1
     if errs is True:
         return True
@@ -269,8 +269,8 @@ def checkForOverlapSingleRow(fileContents, **kwargs):
         minCheck = float(timeOut[1]) - float(timeIn[1])
         if hourCheck and minCheck < 0 or hourCheck < 0:
             errs = True
-            print("in row #" + str(
-                rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.")
+            print("\033[38;5;196mIn row #" + str(
+                rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.\033[0m")
         rowNum += 1
     if errs is True:
         return True
@@ -288,11 +288,11 @@ def checkHourIncrement(fileContents, **kwargs):
             if float(workTime[1]) % .25 != 0: # using remainders to check increment
                 errs = True
                 print(
-                    "Row #" + str(rowNum) + ", hours worked time is not in 15 minute increments, it reads: " + str(workTime[0]) + "." + str(
+                    "\033[38;5;196mRow #" + str(rowNum) + ", hours worked time is not in 15 minute increments, it reads:\033[0m " + str(workTime[0]) + "." + str(
                         workTime[1]))
         except IndexError:
             errs = True
-            print("Row #" + str(rowNum) + ", the hours worked time is not formatted correctly, it reads: " + str(row[3]))
+            print("\033[38;5;196mRow #" + str(rowNum) + ", the hours worked time is not formatted correctly, it reads:\033[0m " + str(row[3]))
         rowNum += 1
     if errs is True:
         return True
@@ -309,7 +309,7 @@ def checkClientName(fileContents, clientList, **kwargs):
         if not str(row[4]) in clientList:
             errs = True
             print(
-                "Row #" + str(rowNum) + ". The client field does not match any current client, it reads: " + str(
+                "\033[38;5;196mRow #" + str(rowNum) + ". The client field does not match any current client, it reads:\033[0m " + str(
                     row[4]))
         rowNum += 1
     if errs is True:
@@ -355,20 +355,20 @@ for args in sys.argv[1:]:
         clientList = str(subprocess.check_output(["sh", "/projects/clients/bin/projects-show-all"],
                                                  stderr=subprocess.DEVNULL))[2:].split('\\n')
     except subprocess.CalledProcessError:
-        print("\033[38;5;196mCould not find \"/projects/clients/bin/projects-show-all\", check location and permissions?\033[0m\n" % str(args))
+        print("\033[38;5;196mCould not find \"/projects/clients/bin/projects-show-all\", check location and permissions?\033[0m\n")
         err = True
         break
 
     for key, func in fullFileFunctions.items():
         err = func(fileContents=fileContents, fileDate=fileDate)
-        if err == "skip":
-            break
-        else:
-            for key, func in fieldFunctions.items():
-                err = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName,
-                              hoursEntryFormat=hoursEntryFormat, clientList=clientList)
-                if err == "skip":
-                    break
+    if err == "skip":
+        break
+    else:
+        for key, func in fieldFunctions.items():
+            err = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName,
+                          hoursEntryFormat=hoursEntryFormat, clientList=clientList)
+            if err == "skip":
+                break
     if err is False:
         print("\033[38;5;82m++ File is all set!\033[0m\n")
 if err is True:
