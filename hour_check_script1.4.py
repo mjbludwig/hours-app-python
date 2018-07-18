@@ -268,7 +268,8 @@ def checkForOverlapSingleRow(fileContents, **kwargs):
         timeOut = str(row[2]).split(' ')[1].split(':')
         hourCheck = float(timeOut[0]) - float(timeIn[0])
         minCheck = float(timeOut[1]) - float(timeIn[1])
-        if hourCheck and minCheck < 0 or hourCheck < 0:
+
+        if hourCheck < 0 and minCheck < 0 or hourCheck < 0:
             errs = True
             print("\033[38;5;196m-- In row #" + str(
                 rowNum) + " There is an inconsistency with the punch in an out times, it results in a negative.\033[0m")
@@ -299,6 +300,7 @@ def checkHourIncrement(fileContents, **kwargs):
         return True
     else:
         return False
+
 fieldFunctions["checkHourIncrement"]=checkHourIncrement
 
 
@@ -368,20 +370,28 @@ for args in sys.argv[1:]:
         print("\033[38;5;196m-- Could not find \"/projects/clients/bin/projects-show-all\", check location and permissions?\033[0m\n")
         err = True
         break
-
+    fileErrs = []
     for key, func in fullFileFunctions.items():
         err = func(fileContents=fileContents, fileDate=fileDate)
         if err == "skip":
             break
+        else:
+            fileErrs.append(err)
     if err != "skip":
         for key, func in fieldFunctions.items():
             err = func(fileContents=fileContents, fileDate=fileDate, fileYear=fileYear, fileUserName=fileUserName,
                           hoursEntryFormat=hoursEntryFormat, clientList=clientList)
             if err == "skip":
                 break
+            else:
+                fileErrs.append(err)
+    if True in fileErrs:
+        err = True
     if err is False:
         print("\033[38;5;82m++ File is all set!\033[0m\n")
 if err is True:
+    print("\n")
     sys.exit(1)
 else:
+    print("\n")
     sys.exit(0)
