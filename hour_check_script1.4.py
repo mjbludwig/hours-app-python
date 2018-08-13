@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 import os
 import sys
 import datetime
@@ -47,8 +47,14 @@ def checkForFileOverlap(fileContents, **kwargs):
     errs = False
     for row in fileContents:
         row = str(row).split('|')
-        timeIn = row[1].split(' ')[1]
-        timeOut = row[2].split(' ')[1]
+        timeIn = re.search('..:..', row[1]).group()
+        timeOut = re.search('..:..', row[2]).group()
+        if timeIn is None:
+            print("\033[38;5;196m-- there is an error with the formatting of the punch in time.\033[0m")
+            return "skip"
+        elif timeOut is None:
+            print("\033[38;5;196m-- there is an error with the formatting of the punch out time.\033[0m")
+            return "skip"
         timesInRows[rowNum] = ([convertToBaseTen(timeIn), convertToBaseTen(timeOut)])
         rowNum += 1
     for tester in timesInRows.values():
@@ -285,6 +291,8 @@ def checkHourIncrement(fileContents, **kwargs):
     errs = False
     for row in fileContents:
         row = str(row).split('|')
+        if len(str(row[3]).split('.')) == 1:
+            row[3] = row[3] + ".0"
         try:
             workTime = str(row[3]).split('.')
             if float(workTime[1]) % .25 != 0: # using remainders to check increment
