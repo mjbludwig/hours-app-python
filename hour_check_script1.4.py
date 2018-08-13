@@ -342,10 +342,9 @@ for args in sys.argv[1:]:
     print("\n\033[38;5;226mChecking:\033[0m %s\n" % str(args))
     try:
         fileContents = []
-        with open(args, newline='') as f:
-            reader = csv.reader(f, quoting=csv.QUOTE_NONE)
-            for row in reader:
-                fileContents = fileContents + row
+        with open(args, 'r', newline='') as f:
+            for row in f:
+                fileContents.append(row)
         if all((line.isspace() for line in fileContents)):
             print("\033[38;5;226mfile is empty\033[0m\n\n")
             continue
@@ -354,7 +353,7 @@ for args in sys.argv[1:]:
             #print(bool(re.match('^\s+$', row)))
             if bool(re.match('^\s+$', str(row))) is True:
                 fileContents.remove(row)
-        print(fileContents)
+        #print(fileContents)
         #fileContents = str(subprocess.check_output(["cat", str(args)], stderr=subprocess.DEVNULL)).replace('\\n', '\n').strip('\'').strip("b'").strip().split('\n')
         #print(fileContents)
     except FileNotFoundError:
