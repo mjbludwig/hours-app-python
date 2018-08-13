@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.1
 import os
 import sys
 import datetime
@@ -46,9 +46,9 @@ def checkForFileOverlap(fileContents, **kwargs):
     rowNum = 1
     errs = False
     for row in fileContents:
-        row = str(row).split('|')
-        timeIn = re.search('..:..', row[1]).group()
-        timeOut = re.search('..:..', row[2]).group()
+        splitrows = str(row).split('|')
+        timeIn = re.search('..:..', splitrows[1]).group()
+        timeOut = re.search('..:..', splitrows[2]).group()
         if timeIn is None:
             print("\033[38;5;196m-- there is an error with the formatting of the punch in time.\033[0m")
             return "skip"
@@ -349,6 +349,12 @@ for args in sys.argv[1:]:
         if all((line.isspace() for line in fileContents)):
             print("\033[38;5;226mfile is empty\033[0m\n\n")
             continue
+        #filter(None, fileContents)
+        for row in fileContents[:]:
+            #print(bool(re.match('^\s+$', row)))
+            if bool(re.match('^\s+$', str(row))) is True:
+                fileContents.remove(row)
+        print(fileContents)
         #fileContents = str(subprocess.check_output(["cat", str(args)], stderr=subprocess.DEVNULL)).replace('\\n', '\n').strip('\'').strip("b'").strip().split('\n')
         #print(fileContents)
     except FileNotFoundError:
