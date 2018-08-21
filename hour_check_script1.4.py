@@ -274,6 +274,7 @@ def checkHourIncrement(fileRows, **kwargs):
             print(printRawLine(index, highlights=[3]))
             print("\033[38;5;196m-- Row #" + str(index + 1) + ", the hours worked time is not formatted correctly, it reads:\033[0m " + str(row[3]))
     if errs is True:
+        checksToSkip.append("checkWorkTime")
         printErrorSeperator()
         return True
     else:
@@ -337,6 +338,26 @@ def checkForFileOverlap(fileRows, **kwargs):
     else:
         return False
 fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
+
+def checkWorkTime(fileRows, **kwargs):
+    errs = False
+    if "checkWorkTime" in checksToSkip:
+        return False
+    for index, row in enumerate(fileRows):
+        timeIn = convertToBaseTen(re.search('..:..', row[1]).group())
+        timeOut = convertToBaseTen(re.search('..:..', row[2]).group())
+        if (timeOut - timeIn) != row[3]:
+            print("\033[38;5;196mRow #" + str(index + 1) + "\033[0m", printRawLine(index, highlights=[3]))
+            print("\033[38;5;196m--The \"Hours Worked\" time does not match the time span between punch times, " + str(timeOut),
+                  "-", str(timeIn), " should be ", str(timeOut - timeIn), " hours", sep="")
+            errs = True
+    if errs is True:
+        printErrorSeperator()
+        return True
+    else:
+        return False
+
+fullFileFunctions["checkWorkTime"]=checkWorkTime
 
 ################################
 ## Create the Data Structure ###
