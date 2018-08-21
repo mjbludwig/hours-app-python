@@ -29,7 +29,7 @@ def printRawLine(row, highlights=None): #concatinates back a row for printing
 def printErrorSeperator():
     print("\033[38;5;33m=======================\033[0m")
 
-def convertToBaseTen(time): #for use in checking for full file overlap
+def convertToBaseTen(time): #for use in doing math regarding punch in or out times
     time = str(time).split(':')
     hour = time[0]
     minutes = time[1]
@@ -49,15 +49,16 @@ def nameMatchCheck(fileRows, fileUserName, **kwargs):
     for index, row in enumerate(fileRows):
         if str(row[0]) != str(fileUserName):
             errs = True
-            print(printRawLine(index, highlights=[0]))
+            print(printRawLine(index, highlights=[0]))# highlight name field
             print(
-                "\033[38;5;196m-- Name field for row #" + str(index + 1) + " does not match file name, it says:\033[0m " + str(row[0]))
+                "\033[38;5;196m-- Name field for row #" + str(index + 1) + " does not match file name, it says:\033[0m "
+                + str(row[0]), "\033[38;5;196mnot\033[0m", str(fileUserName))
     if errs is True:
         printErrorSeperator()
         return True
     else:
         return False
-fieldFunctions["nameMatchCheck"]=nameMatchCheck
+fieldFunctions["nameMatchCheck"]=nameMatchCheck # adds function to field checking dictionary
 
 def checkClientName(fileRows, clientList, **kwargs):
     errs = False
@@ -92,7 +93,7 @@ def checkIllegalDates(fileRows, fileYear, **kwargs):
         print(actualFileName)
         print("\033[38;5;196m-- The year in the file name is a decimal. \033[0m")
     else:
-        if str(fileYear) != str(datetime.datetime.now().year):
+        if str(fileYear) != str(datetime.datetime.now().year): # allows script to check hour files from previous years
             print(datetime.datetime.now().year)
             userInput = str(input("This file is from a different year than it is currently, it reads: " + str(
                 fileYear) + ". Continue? (Y/N) "))
@@ -128,7 +129,7 @@ def checkIllegalDates(fileRows, fileYear, **kwargs):
             print(printRawLine(index, highlights=[2]))
             print(
                 "\033[38;5;196m-- In row #" + str(index + 1) + " the \"Date Out\" day is out of range. It reads:\033[0m " + str(dateOut[2]))
-        if errs is False:
+        if errs is False: # if there are errors in the formatting of the dates, it skips checking if it matches the file name
             if float(dateIn[0]) != yearToBaseFrom and skipYearCheck is True:
                 errs = True
                 print(printRawLine(index, highlights=[1]))
@@ -182,7 +183,8 @@ def checkIllegalNums(fileRows, **kwargs):
             hourOut = str(row[2]).split(' ')[1].split(':')[0]
             minIn = str(row[1]).split(' ')[1].split(':')[1]
             minOut = str(row[2]).split(' ')[1].split(':')[1]
-        except IndexError:
+        except IndexError: # if the formatting of the punch times in a line is messed up, it cant be checked against the others so
+            # this error is given and the line is not processed
             print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[1, 2]), sep="")
             print("\033[38;5;196m-- The formatting in one or more of the punch times is illegal\033[0m ")
             printErrorSeperator()
@@ -246,7 +248,8 @@ def checkIllegalNums(fileRows, **kwargs):
             print(
                 "\033[38;5;196m-- The minutes in the time out field are negative It reads:\033[0m " + str(minOut))
         if errs is True:
-            rowsToSkip.append(index)
+            rowsToSkip.append(index) # if any of these checks report problems then this row cannot be checked by other
+            # other functions that rely on accurate parsing.
     if errs is True:
         printErrorSeperator()
         return True
@@ -274,7 +277,7 @@ def checkHourIncrement(fileRows, **kwargs):
             print(printRawLine(index, highlights=[3]))
             print("\033[38;5;196m-- Row #" + str(index + 1) + ", the hours worked time is not formatted correctly, it reads:\033[0m " + str(row[3]))
     if errs is True:
-        checksToSkip.append("checkWorkTime")
+        checksToSkip.append("checkWorkTime") # cant properly check work time if they are formatted incorrectly
         printErrorSeperator()
         return True
     else:
@@ -282,14 +285,13 @@ def checkHourIncrement(fileRows, **kwargs):
 
 fieldFunctions["checkHourIncrement"]=checkHourIncrement
 
-def checkForOverlapSingleRow(fileRows, **kwargs):
+def checkForOverlapSingleRow(fileRows, **kwargs): # making sure the punch out time is not before the punch in time
     errs = False
     for index, row in enumerate(fileRows):
         timeIn = str(row[1]).split(' ')[1].split(':')
         timeOut = str(row[2]).split(' ')[1].split(':')
         hourCheck = float(timeOut[0]) - float(timeIn[0])
         minCheck = float(timeOut[1]) - float(timeIn[1])
-
         if hourCheck < 0 and minCheck < 0 or hourCheck < 0:
             errs = True
             print(printRawLine(index, highlights=[1, 2]))
