@@ -53,6 +53,7 @@ def nameMatchCheck(fileRows, fileUserName, **kwargs):
             print(
                 "\033[38;5;196m-- Name field for row #" + str(index + 1) + " does not match file name, it says:\033[0m " + str(row[0]))
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
@@ -68,6 +69,7 @@ def checkClientName(fileRows, clientList, **kwargs):
                 "\033[38;5;196m-- Row #" + str(index + 1) + ". The client field does not match any current client, it reads:\033[0m " + str(
                     row[4]))
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
@@ -105,6 +107,7 @@ def checkIllegalDates(fileRows, fileYear, **kwargs):
     for index, row in enumerate(fileRows):
         dateIn = str(str(row[1]).split(' ')[0]).split('-')
         dateOut = str(str(row[2]).split(' ')[0]).split('-')
+        fileMonthAndDay = str(fileDate).split('-')[1:]
         if float(dateIn[1]) > 12 or float(dateIn[1]) < 1:
             errs = True
             print(printRawLine(index, highlights=[1]))
@@ -119,30 +122,57 @@ def checkIllegalDates(fileRows, fileYear, **kwargs):
             errs = True
             print(printRawLine(index, highlights=[2]))
             print(
-                "\033[38;5;196m-- In row #" + str(index + 1) + " the \"date out\" month is out of range. It reads:\033[0m " + str(dateOut[1]))
+                "\033[38;5;196m-- In row #" + str(index + 1) + " the \"Date Out\" month is out of range. It reads:\033[0m " + str(dateOut[1]))
         if float(dateOut[2]) > 31 or float(dateOut[2]) < 1:
             errs = True
             print(printRawLine(index, highlights=[2]))
             print(
-                "\033[38;5;196m-- In row #" + str(index + 1) + " the \"date out\" day is out of range. It reads:\033[0m " + str(dateOut[2]))
+                "\033[38;5;196m-- In row #" + str(index + 1) + " the \"Date Out\" day is out of range. It reads:\033[0m " + str(dateOut[2]))
         if errs is False:
             if float(dateIn[0]) != yearToBaseFrom and skipYearCheck is True:
                 errs = True
                 print(printRawLine(index, highlights=[1]))
                 print(
-                    "\033[38;5;196m-- In row #" + str(index + 1) + " the year in the \"date in\" field does not match the file name. It reads:\033[0m " + str(
+                    "\033[38;5;196m-- In row #" + str(index + 1) + " the year in the \"Date In\" field does not match the file name. It reads:\033[0m " + str(
                         dateIn[0]))
             if float(dateOut[0]) != yearToBaseFrom and skipYearCheck is True:
                 errs = True
                 print(printRawLine(index, highlights=[2]))
                 print(
-                    "\033[38;5;196m-- In row #" + str(index + 1) + " the year in the \"date out\" field does not match the file name. It reads:\033[0m " + str(
+                    "\033[38;5;196m-- In row #" + str(index + 1) + " the year in the \"Date Out\" field does not match the file name. It reads:\033[0m " + str(
                         dateOut[0]))
+            if str(dateIn[1]) != str(fileMonthAndDay[0]):
+                errs = True
+                print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[1]), sep="")
+                print(
+                    "\033[38;5;196m-- The month in the \"Date In\" field does not match file name month, it says:\033[0m " + str(
+                        str(dateIn[1])))
+            if str(dateIn[2]) != str(fileMonthAndDay[1]):
+                errs = True
+                print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[1]), sep="")
+                print(
+                    "\033[38;5;196m-- The day in the \"Date In\" field does not match file name day, it says:\033[0m " +
+                    str(dateIn[2]))
+            if str(dateOut[1]) != str(fileMonthAndDay[0]):
+                errs = True
+                print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[2]), sep="")
+                print(
+                    "\033[38;5;196m-- The month in the \"Date Out\" field does not match file name month, it says:\033[0m " + str(
+                        dateOut[1]))
+            if str(dateOut[2]) != str(fileMonthAndDay[1]):
+                errs = True
+                print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[2]), sep="")
+                print(
+                    "\033[38;5;196m-- The day in the \"Date Out\" field does not match file name day, it says:\033[0m " + str(
+                        dateOut[2]))
+
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
 fieldFunctions["checkIllegalDates"]=checkIllegalDates
+
 
 def checkIllegalNums(fileRows, **kwargs):
     errs = False
@@ -224,41 +254,7 @@ def checkIllegalNums(fileRows, **kwargs):
         return False
 fieldFunctions["checkIllegalNums"]=checkIllegalNums
 
-def checkFileDate(fileRows, fileDate, rowsToSkip, **kwargs):
-    for index, row in enumerate(fileRows):
-        if index in rowsToSkip:
-            continue
-        rowDateIn = str(row[1].split(' ')[0]).split('-')[1:]
-        rowDateOut = str(row[2].split(' ')[0]).split('-')[1:]
-        fileMonthAndDay = str(fileDate).split('-')[1:]
-        if str(rowDateIn[0]) != str(fileMonthAndDay[0]):
-            errs = True
-            print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[1]), sep="")
-            print(
-                "\033[38;5;196m-- The month in the \"Date In\" field does not match file name month, it says:\033[0m " + str(
-                    str(rowDateIn[0])))
-        elif str(rowDateIn[1]) != str(fileMonthAndDay[1]):
-            errs = True
-            print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[1]), sep="")
-            print(
-                "\033[38;5;196m-- The day in the \"Date In\" field does not match file name day, it says:\033[0m " + str(
-                    str(rowDateIn[1])))
-        elif str(rowDateOut[0]) != str(fileMonthAndDay[0]):
-            errs = True
-            print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[2]), sep="")
-            print("\033[38;5;196m-- The month in the \"Date Out\" field does not match file name month, it says:\033[0m " + str(
-                rowDateOut[0]))
-        elif str(rowDateOut[1]) != str(fileMonthAndDay[1]):
-            errs = True
-            print("\033[38;5;196mRow #", str(index + 1), ":\033[0m ", printRawLine(index, highlights=[2]), sep="")
-            print("\033[38;5;196m-- The day in the \"Date Out\" field does not match file name day, it says:\033[0m " + str(
-                rowDateOut[1]))
-    if errs is True:
-        printErrorSeperator()
-        return True
-    else:
-        return False
-fieldFunctions["checkFileDate"]=checkFileDate
+
 
 def checkHourIncrement(fileRows, **kwargs):
     errs = False
@@ -278,6 +274,7 @@ def checkHourIncrement(fileRows, **kwargs):
             print(printRawLine(index, highlights=[3]))
             print("\033[38;5;196m-- Row #" + str(index + 1) + ", the hours worked time is not formatted correctly, it reads:\033[0m " + str(row[3]))
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
@@ -298,6 +295,7 @@ def checkForOverlapSingleRow(fileRows, **kwargs):
             print("\033[38;5;196m-- In row #" + str(
                 index + 1) + " There is an inconsistency with the punch in an out times, it results in a negative.\033[0m")
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
@@ -317,13 +315,10 @@ def checkForFileOverlap(fileRows, **kwargs):
         elif timeOut is None:
             print(printRawLine(index, highlights=[2]))
             print("\033[38;5;196m-- there is an error with the formatting of the punch out time.\033[0m")
-            return "skip"
+            errs = True
+        else:
+            timesInRows[index + 1] = ([convertToBaseTen(timeIn), convertToBaseTen(timeOut)])
 
-
-        ###########3 wowoworkrkrk HERERE     ###########
-        ################################################
-        #################################################
-        timesInRows[index + 1] = ([convertToBaseTen(timeIn), convertToBaseTen(timeOut)])
     for tester in timesInRows.values():
         for set in timesInRows.values():
             if tester[0] == set[0] and tester[1] == set[1]:
@@ -331,10 +326,13 @@ def checkForFileOverlap(fileRows, **kwargs):
             elif tester[0] < set[1] and tester[1] > set[0]:
                 testerRow = [key for key, value in timesInRows.items() if value == tester][0]
                 setRow = [key for key, value in timesInRows.items() if value == set][0]
+                print("\033[38;5;196mRow #" + str(setRow) + "\033[0m", printRawLine(setRow, highlights=[1, 2]))
+                print("\033[38;5;196mRow #" + str(testerRow) + "\033[0m", printRawLine(testerRow, highlights=[1, 2]))
                 print("\033[38;5;196m-- There is an overlap in the times: \033[0m" + str(tester[0]) + ", " + str(tester[1]) + " (Row #" +
                       str(testerRow) + ") and " + str(set[0]) + ", " + str(set[1]) + " (Row #" + str(setRow) + ")")
                 errs = True
     if errs is True:
+        printErrorSeperator()
         return True
     else:
         return False
