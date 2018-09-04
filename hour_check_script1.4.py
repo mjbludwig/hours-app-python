@@ -401,9 +401,11 @@ for file in sys.argv[1:]:
     # note if any fields have illegal number of fields that are populated
     for index, rows in enumerate(fileRows):
         if len(rows) != 8:
-            print("\033[38;5;196m-- Row #%s has an incorrect number of fields: \033[0m" % (index + 1))
-            print(printRawLine(index))
-            rowsToSkip.append(index)
+            print("\033[38;5;196m-- Row #%s has an incorrect number of fields: \033[0m" % (index + 1), str(printRawLine(index)))
+            print("\033[38;5;196mCannot continue checks for this row\033[0m")
+            fileRows.pop(index)
+            printErrorSeperator()
+            
 
     ## Create variables from file name for use in some checking functions
     try:
