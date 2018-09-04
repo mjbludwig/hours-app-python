@@ -348,10 +348,10 @@ def checkWorkTime(fileRows, **kwargs):
     for index, row in enumerate(fileRows):
         timeIn = convertToBaseTen(re.search('..:..', row[1]).group())
         timeOut = convertToBaseTen(re.search('..:..', row[2]).group())
-        if (timeOut - timeIn) != row[3]:
+        if (timeOut - timeIn) != float(row[3]):
             print("\033[38;5;196mRow #" + str(index + 1) + "\033[0m", printRawLine(index, highlights=[3]))
             print("\033[38;5;196m--The \"Hours Worked\" time does not match the time span between punch times, " + str(timeOut),
-                  "-", str(timeIn), " should be ", str(timeOut - timeIn), " hours", sep="")
+                  " - ", str(timeIn), " should be ", str(timeOut - timeIn), " hours\033[0m", sep="")
             errs = True
     if errs is True:
         printErrorSeperator()
@@ -364,8 +364,11 @@ fullFileFunctions["checkWorkTime"]=checkWorkTime
 ################################
 ## Create the Data Structure ###
 ################################
-
+err = False
 for file in sys.argv[1:]:
+    if err is True: ##### prints seperator line between files if multiple have errors
+        print("\n\033[7;49;91m------------------------------------------\033[0m\n")
+
     ## if there are serious issues with the contents of a file, the err value will flip to
     # True and this script will ultimately return a exit with a 1
     err = False
