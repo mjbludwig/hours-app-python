@@ -364,11 +364,8 @@ fullFileFunctions["checkWorkTime"]=checkWorkTime
 ################################
 ## Create the Data Structure ###
 ################################
-err = False
 for file in sys.argv[1:]:
-    if err is True: ##### prints seperator line between files if multiple have errors
-        print("\n\033[7;49;91m------------------------------------------\033[0m\n")
-
+    fileErrs = [] # Stores errors as True values, can be counted later
     ## if there are serious issues with the contents of a file, the err value will flip to
     # True and this script will ultimately return a exit with a 1
     err = False
@@ -405,7 +402,7 @@ for file in sys.argv[1:]:
             print("\033[38;5;196mCannot continue checks for this row\033[0m")
             fileRows.pop(index)
             printErrorSeperator()
-            
+            fileErrs.append(True)
 
     ## Create variables from file name for use in some checking functions
     try:
@@ -421,6 +418,7 @@ for file in sys.argv[1:]:
         print(
             "\n\033[38;5;196m" + "-- This file has an illegally formatted name: " + "\033[0m" + " \033[0;30;43m" + str(
                 file) + "\033[0m\n")
+        fileErrs.append(True)
         # checking file contents against file name cannot be done if the file name has bad formatting
         checksToSkip.append("checkIllegalDates")
 
@@ -435,7 +433,6 @@ for file in sys.argv[1:]:
             "\033[38;5;196m-- Could not find \"/projects/clients/bin/projects-show-all\", check location and permissions?\033[0m\n")
         err = True
         break
-    fileErrs = []
     for key, func in fullFileFunctions.items():
         err = func(fileRows=fileRows)
         if err is True:
@@ -447,6 +444,8 @@ for file in sys.argv[1:]:
             fileErrs.append(err)
     if True in fileErrs:
         err = True
+        ##### prints seperator line between files if multiple files have errors
+        print("\n\033[7;49;91m--------  End of Error Report for %s  ----------\033[0m\n" % str(file))
 
 
 
