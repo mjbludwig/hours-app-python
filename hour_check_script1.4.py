@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.1
-
 import csv
 import sys
 import re
@@ -11,8 +10,6 @@ import datetime
 ##################################
 fullFileFunctions = {}
 fieldFunctions = {}
-
-
 
 def printRawLine(row, highlights=None): #concatinates back a row for printing
     if highlights is not None: # if you would like to highlight an entry in a row, pass in the index of the desired
@@ -174,7 +171,6 @@ def checkIllegalDates(fileRows, fileYear, **kwargs):
         return False
 fieldFunctions["checkIllegalDates"]=checkIllegalDates
 
-
 def checkIllegalNums(fileRows, **kwargs):
     errs = False
     for index, row in enumerate(fileRows):
@@ -257,8 +253,6 @@ def checkIllegalNums(fileRows, **kwargs):
         return False
 fieldFunctions["checkIllegalNums"]=checkIllegalNums
 
-
-
 def checkHourIncrement(fileRows, **kwargs):
     errs = False
     for index, row in enumerate(fileRows):
@@ -303,7 +297,6 @@ def checkForOverlapSingleRow(fileRows, **kwargs): # making sure the punch out ti
     else:
         return False
 fieldFunctions["checkForOverlapSingleRow"]=checkForOverlapSingleRow
-
 
 def checkForFileOverlap(fileRows, **kwargs):
     reducedList = []
@@ -353,7 +346,6 @@ def checkForFileOverlap(fileRows, **kwargs):
     else:
         return False
 fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
-
 
 ################################
 ## Create the Data Structure ###
@@ -416,8 +408,6 @@ for file in sys.argv[1:]:
         # checking file contents against file name cannot be done if the file name has bad formatting
         checksToSkip.append("checkIllegalDates")
 
-
-
     hoursEntryFormat = ['Name', 'Date In Time In', "Date Out Time out", "Hours Worked", "Client", "Emergency", \
                         'Billable', 'Comment']  # show what field is empty
     try:
@@ -440,10 +430,6 @@ for file in sys.argv[1:]:
         err = True
         ##### prints seperator line between files if multiple files have errors
         print("\n\033[7;49;91m--------  End of Error Report for %s  ----------\033[0m\n" % str(file))
-
-
-
-
 
 if err is True:
     sys.exit(1)
