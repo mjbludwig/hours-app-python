@@ -306,34 +306,47 @@ fieldFunctions["checkForOverlapSingleRow"]=checkForOverlapSingleRow
 
 
 def checkForFileOverlap(fileRows, **kwargs):
-    timesInRows = {}
+    reducedList = []
+    duplicateList = []
     errs = False
     for index, row in enumerate(fileRows):
         timeIn = re.search('..:..', row[1]).group()
         timeOut = re.search('..:..', row[2]).group()
+        timeWorked = float(row[3])
+        if timeWorked <= 0:
+            continue
         if timeIn is None:
             print(printRawLine(index, highlights=[1]))
-            print("\033[38;5;196m-- there is an error with the formatting of the punch in time.\033[0m")
+            print("\033[38;5;196m-- There is an error with the formatting of the punch in time.\033[0m")
             errs = True
+            continue
         elif timeOut is None:
             print(printRawLine(index, highlights=[2]))
-            print("\033[38;5;196m-- there is an error with the formatting of the punch out time.\033[0m")
+            print("\033[38;5;196m-- There is an error with the formatting of the punch out time.\033[0m")
             errs = True
-        else:
-            timesInRows[index + 1] = ([convertToBaseTen(timeIn), convertToBaseTen(timeOut)])
+            continue
+        timeInBase10 = convertToBaseTen(timeIn)
+        timeOutBase10 = convertToBaseTen(timeOut)
+        reducedList.append(((index), timeInBase10, timeOutBase10, timeWorked)) #narrows the csv file to just the important parts for this check
+        if (timeInBase10, timeOutBase10) not in duplicateList:
+            duplicateList.append((timeInBase10, timeOutBase10)) # Create list for just what time spans were found more than once
 
-    for tester in timesInRows.values():
-        for set in timesInRows.values():
-            if tester[0] == set[0] and tester[1] == set[1]:
-                break
-            elif tester[0] < set[1] and tester[1] > set[0]:
-                testerRow = [key for key, value in timesInRows.items() if value == tester][0]
-                setRow = [key for key, value in timesInRows.items() if value == set][0]
-                print("\033[38;5;196mRow #" + str(setRow) + "\033[0m", printRawLine(setRow, highlights=[1, 2]))
-                print("\033[38;5;196mRow #" + str(testerRow) + "\033[0m", printRawLine(testerRow, highlights=[1, 2]))
-                print("\033[38;5;196m-- There is an overlap in the times: \033[0m" + str(tester[0]) + ", " + str(tester[1]) + " (Row #" +
-                      str(testerRow) + ") and " + str(set[0]) + ", " + str(set[1]) + " (Row #" + str(setRow) + ")")
-                errs = True
+    for set in duplicateList: # now go through the list of known duplicate timespans to find out which lines
+        # are duplicate and check to make sure the durations sum to the time span.
+        timeSpan = set[1] - set[0]
+        errorRows = []
+        duration = 0
+        for index, row in enumerate(reducedList):
+            if set[0] in row and set[1] in row:
+                duration = duration + row[3]
+                errorRows.append(index)
+        if duration != timeSpan:
+            for row in errorRows:
+                print(printRawLine(row, highlights=[1, 2, 3]))
+            print("\033[38;5;196m-- The sum of the durations for the worktime in this/these lines,\n does not match the total timespan.", \
+                  "\nThe time span is \033[0m%s" % str(timeSpan), "\033[38;5;196mbut the durations sum to \033[0m%s\n" % str(duration))
+            errs = True
+
     if errs is True:
         printErrorSeperator()
         return True
@@ -341,25 +354,6 @@ def checkForFileOverlap(fileRows, **kwargs):
         return False
 fullFileFunctions["checkForFileOverlap"]=checkForFileOverlap
 
-def checkWorkTime(fileRows, **kwargs):
-    errs = False
-    if "checkWorkTime" in checksToSkip:
-        return False
-    for index, row in enumerate(fileRows):
-        timeIn = convertToBaseTen(re.search('..:..', row[1]).group())
-        timeOut = convertToBaseTen(re.search('..:..', row[2]).group())
-        if (timeOut - timeIn) != float(row[3]):
-            print("\033[38;5;196mRow #" + str(index + 1) + "\033[0m", printRawLine(index, highlights=[3]))
-            print("\033[38;5;196m--The \"Hours Worked\" time does not match the time span between punch times, " + str(timeOut),
-                  " - ", str(timeIn), " should be ", str(timeOut - timeIn), " hours\033[0m", sep="")
-            errs = True
-    if errs is True:
-        printErrorSeperator()
-        return True
-    else:
-        return False
-
-fullFileFunctions["checkWorkTime"]=checkWorkTime
 
 ################################
 ## Create the Data Structure ###
@@ -424,7 +418,7 @@ for file in sys.argv[1:]:
 
 
 
-    hoursEntryFormat = ['Name', 'Date In', 'Time In', "Date Out", "Time out", "Hours Worked", "Client", "Emergency", \
+    hoursEntryFormat = ['Name', 'Date In Time In', "Date Out Time out", "Hours Worked", "Client", "Emergency", \
                         'Billable', 'Comment']  # show what field is empty
     try:
         clientList = str(subprocess.check_output(["sh", "/projects/clients/bin/projects-show-all"]))[2:].split('\\n')
