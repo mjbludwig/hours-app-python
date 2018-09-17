@@ -376,11 +376,22 @@ for file in sys.argv[1:]:
                 del rows[index]
     # Remove any None lists in the main list
     fileRows = [x for x in tempFileRows if x]
-
     #remove any empty fields
     for index, rows in enumerate(fileRows):
+        try:
+            comments = rows[7]
+        except IndexError:
+            rows.insert(7, "COMMENTS N/A")
+            print(printRawLine(index, highlights=[7]))
+            print("\033[93m-- Comments line is empty\033[0m")
+            printErrorSeperator()
+        if rows[7] == '':
+            rows.insert(7, "COMMENTS N/A")
+            print(printRawLine(index, highlights=[7]))
+            print("\033[93m-- Comments line is empty\033[0m")
+            printErrorSeperator()
+    for index, rows in enumerate(fileRows):
         fileRows[index] = [x for x in rows if x != '']
-
     # note if any fields have illegal number of fields that are populated
     for index, rows in enumerate(fileRows):
         if len(rows) != 8:
